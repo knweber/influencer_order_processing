@@ -9,6 +9,7 @@ gem 'activesupport'
 gem 'sinatra-activerecord'
 gem 'pg'
 gem 'rake'
+gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-throttle.git'
 
 group :development do
   gem 'pry'

@@ -37,7 +37,7 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.integer :order_number
       t.string :order_status_url
       t.json :payment_gateway_names
-      t.string phone
+      t.string :phone
       t.timestamp :processed_at
       t.string :processing_method
       t.string :reference
@@ -62,6 +62,7 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.integer :total_weight
       t.timestamp :updated_at
       t.integer :user_id
+      t.timestamp :sent_to_acs_at
     end
 
     create_table :shopify_products, id: false do |t|
