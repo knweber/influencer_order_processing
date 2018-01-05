@@ -1,28 +1,33 @@
 # ShopifyCache
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/shopify_cache`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'shopify_cache'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install shopify_cache
+Provides rake tasks to cache Shopify API entities locally.
 
 ## Usage
 
-TODO: Write usage instructions here
+### With Docker
+
+Build the image:
+```shell
+git clone https://github.com/r-bar/fambrands_shopify_cache.git
+cd fambrands_shopify_cache
+docker build -t shopify_cache .
+```
+
+Run the migration:
+```shell
+docker run --rm --env-file .env shopify_cache rake db:migrate
+```
+
+Refresh the cache:
+```shell
+docker run --rm --env-file .env shopify_cache rake pull_orders
+docker run --rm --env-file .env shopify_cache rake pull_custom_collections
+docker run --rm --env-file .env shopify_cache rake pull_collects
+docker run --rm --env-file .env shopify_cache rake pull_products
+```
+
+## Environment Variables
+
 
 ## Development
 

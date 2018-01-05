@@ -2,15 +2,15 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
   def change
 
     create_table :shopify_orders, id: false do |t|
-      t.integer :id, null: false, primary_key: true
-      t.integer :app_id
+      t.bigint :id, null: false, primary_key: true
+      t.bigint :app_id
       t.json :billing_address
       t.string :browser_ip
       t.boolean :buyer_accepts_marketing
       t.timestamp :cancelled_at
       t.string :cancel_reason
       t.string :cart_token
-      t.integer :checkout_id
+      t.bigint :checkout_id
       t.string :checkout_token
       t.timestamp :closed_at
       t.boolean :confirmed
@@ -19,7 +19,7 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.float :currency
       t.json :customer
       t.string :customer_locale
-      t.string :device_id
+      t.bigint :device_id
       t.json :discount_codes
       t.string :email
       t.string :financial_status
@@ -29,7 +29,7 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.string :landing_site
       t.string :landing_site_ref
       t.json :line_items
-      t.integer :location_id
+      t.bigint :location_id
       t.string :name
       t.text :note
       t.json :note_attributes
@@ -61,12 +61,12 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.float :total_tax
       t.integer :total_weight
       t.timestamp :updated_at
-      t.integer :user_id
+      t.bigint :user_id
       t.timestamp :sent_to_acs_at
     end
 
     create_table :shopify_products, id: false do |t|
-      t.integer :id, null: false, primary_key: true
+      t.bigint :id, null: false, primary_key: true
       t.text :body_html
       t.timestamp :created_at
       t.string :handle
@@ -86,14 +86,14 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.string :vendor
     end
 
-    create_table :shopify_product_variants do |t|
-      t.integer :id, null: false, primary_key: true
+    create_table :shopify_product_variants, id: false do |t|
+      t.bigint :id, null: false, primary_key: true
       t.string :barcode
       t.float :compare_at_price
       t.timestamp :created_at
       t.string :fullfillment_service
       t.integer :grams
-      t.integer :image_id
+      t.bigint :image_id
       t.string :inventore_management
       t.string :inventory_policy
       t.integer :inventory_quantity
@@ -103,7 +103,7 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.json :options
       t.integer :position
       t.float :price
-      t.integer :product_id
+      t.bigint :product_id
       t.string :sku
       t.boolean :taxable
       t.string :title
@@ -112,8 +112,8 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.string :weight_unit
     end
 
-    create_table :shopify_custom_collections do |t|
-      t.integer :id, null: false, primary_key: true
+    create_table :shopify_custom_collections, id: false do |t|
+      t.bigint :id, null: false, primary_key: true
       t.text :body_html
       t.string :handle
       t.string :image
@@ -127,13 +127,13 @@ class CreateShopifyCache < ActiveRecord::Migration[5.1]
       t.timestamp :updated_at
     end
 
-    create_table :shopify_collects do |t|
-      t.integer :id, null: false, primary_key: true
-      t.integer :collection_id
+    create_table :shopify_collects, id: false do |t|
+      t.bigint :id, null: false, primary_key: true
+      t.bigint :collection_id
       t.timestamp :created_at
       t.boolean :featured
       t.integer :position
-      t.integer :product_id
+      t.bigint :product_id
       t.string :sort_value
       t.timestamp :updated_at
     end

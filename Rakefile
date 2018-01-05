@@ -1,7 +1,7 @@
-require "bundler"
-Bundler.require
+require_relative 'lib/init'
 require "rake/testtask"
 require "sinatra/activerecord/rake"
+require_relative 'lib/models'
 require_relative 'lib/pull'
 
 ActiveRecord::Base.establish_connection ENV['DATABASE_URL']
