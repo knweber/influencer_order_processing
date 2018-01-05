@@ -15,3 +15,6 @@ group :development do
   gem 'pry'
   gem 'sqlite3'
 end
+
+# Added at 2018-01-04 19:08:52 -0800 by ryan:
+gem "dotenv", "~> 2.2"
