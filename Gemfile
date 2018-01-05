@@ -13,4 +13,5 @@ gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-thrott
 
 group :development do
   gem 'pry'
+  gem 'sqlite3'
 end
