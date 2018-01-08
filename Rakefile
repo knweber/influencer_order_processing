@@ -38,3 +38,8 @@ desc 'refresh collects cache from shopify'
 task :pull_collects do |t|
   pull_all(ShopifyAPI::Collect, Collect)
 end
+
+desc 'create orders csv'
+task :create_csv do |t|
+  create_csv
+end
