@@ -41,5 +41,5 @@ end
 
 desc 'create orders csv'
 task :create_csv do |t|
-  create_csv
+  create_orders
 end
