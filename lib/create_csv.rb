@@ -115,7 +115,7 @@ def create_csv
   puts "#{orders.length} Order line items"
   CSV.open(filename, 'w', headers: HEADERS) do |csv|
     csv << HEADERS
-    orders.each{|order| csv << hash_to_row(HEADERS, order) }
+    orders.each{|data| csv << HEADERS.map{|key| data[key]} }
   end
 end
 
@@ -129,13 +129,13 @@ def map_multiple_products(multiple_product_data, size_sku_data, line_item)
     .map{|p| [p['name'], p['value']]}
     .to_h
 
-  sizes = prop_hash.select{|i| SIZE_PROPERTIES.include? i['name']}
+  sizes = prop_hash.select{|k, _| SIZE_PROPERTIES.include? k}
 
   #puts sku_data.inspect
 
   line_item_skus = size_sku_data
     .select{|row| row['product_id'].to_s == line_item['product_id'].to_s}
-    .select{|row| row['size'] == sizes[row['product_item']]}
+    .select{|row| row['size'] == 'ONE SIZE' || row['size'] == sizes[row['product_item']]}
 
   output_items = line_item_skus.map{|data| {
     'product_id' => data['product_id'],
@@ -150,7 +150,7 @@ def map_multiple_products(multiple_product_data, size_sku_data, line_item)
   }}
 
   if output_items.length > 0
-    binding.pry
+    #binding.pry
     puts "DETECTED MULTI ITEM PRODUCT: #{line_item['product_id']} #{line_item['title']}"
     puts "added #{output_items.length}"
   end
