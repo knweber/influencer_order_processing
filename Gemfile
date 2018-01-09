@@ -13,6 +13,9 @@ gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-thrott
 
 group :development do
   gem 'pry'
+  #gem 'pry-debugger'
+  gem 'pry-stack_explorer'
+  gem 'pry-rescue'
   gem 'sqlite3'
 end
 

@@ -41,5 +41,7 @@ end
 
 desc 'create orders csv'
 task :create_csv do |t|
-  create_orders
+  Pry.rescue do
+    create_csv
+  end
 end
