@@ -27,6 +27,7 @@ def load_size_sku_data(filename)
     })
   end
 end
+
 MULTIPLE_PRODUCT_DATA = load_multiple_product_data('data/multi_line_item_product.csv')
 SIZE_SKU_DATA = load_size_sku_data('data/sku_sizes.csv')
 
@@ -83,7 +84,7 @@ def to_row_hash(order)
       'tax_rate' => line_item['taxable'] ? line_item['tax_lines'].pluck('rate').sum * 100 : 0,
       'tax_price' => line_item['taxable'] ? line_item['tax_lines'].pluck('price').map(&:to_f).sum : 0,
       'sell_price' => line_item['price'],
-      'shipment_method_requested' => (order.shipping_lines.first['code'] rescue 'GROUND'),
+      'shipment_method_requested' => (shipping_mapping order.shipping_lines.first['code'] rescue 'GROUND'),
       'quantity_requested' => line_item['quantity'],
       'merchant_sku_item' => line_item['sku'],
       'product_weight' => line_item['grams'],
@@ -92,15 +93,16 @@ def to_row_hash(order)
       'billing_address_street' => billing_address["address1"],
       'billing_address_city' => billing_address["city"],
       'billing_address_postal_code' => billing_address["zip"],
-      'billing_address_state' => billing_address["province"],
-      'billing_address_country' => billing_address["country"],
+      'billing_address_state' => billing_address["province_code"],
+      'billing_address_country' => billing_address["country_code"],
       'shipment_address_name' => "#{shipping_address["first_name"]} #{shipping_address["last_name"]}",
       'shipment_address_street' => shipping_address["address1"],
       'shipment_address_street_2' => shipping_address["address2"],
       'shipment_address_city' => shipping_address["city"],
       'shipment_address_postal_code' => shipping_address["zip"],
-      'shopment_address_state' => shipping_address["province"],
-      'shipment_address_country' => shipping_address["country"],
+      'shipment_address_state' => shipping_address["province_code"],
+      'shipment_address_country' => shipping_address["country_code"],
+      'shipment_address_country' => 'US',
       'gift' => 'false',
     }
   end
@@ -161,4 +163,14 @@ def map_multiple_products(multiple_product_data, size_sku_data, line_item)
 
   #puts "mapped #{output_items}"
   output_items.map{|skus| line_item.merge(skus)} + [line_item]
+end
+
+def shipping_mapping(code)
+  mapping = {
+    'Free Shipping (5-9 days)' => 'GROUND',
+    'Standard Shipping (6-9 days)' => 'GROUND',
+    'custom' => 'GROUND',
+    'Express Shipping (1-2 days)' => 'PRIORITY 2',
+  }
+  mapping[code] || 'GROUND'
 end
