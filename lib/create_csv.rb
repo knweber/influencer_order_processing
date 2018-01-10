@@ -58,8 +58,9 @@ SIZE_SKU_DATA = load_size_sku_data('data/sku_sizes.csv')
 
 def create_orders
   # get all unfulfilled orders
-  my_shopify_orders = ShopifyOrder.where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
-  # *** ADD CONDITION FOR ONLY UNFULFILLED
+  my_shopify_orders = ShopifyOrder
+    .where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
+    .where('json_array_length(fulfillments) > 0')
   
   puts "** Number of orders to fulfill: #{my_shopify_orders.length} **"
   puts "*************"
