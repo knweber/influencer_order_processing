@@ -103,7 +103,6 @@ def to_row_hash(order)
       'shipment_address_postal_code' => shipping_address["zip"],
       'shipment_address_state' => shipping_address["province_code"],
       'shipment_address_country' => shipping_address["country_code"],
-      'shipment_address_country' => 'US',
       'gift' => 'false',
     }
   end
