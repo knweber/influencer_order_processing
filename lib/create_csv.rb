@@ -2,6 +2,7 @@ require 'json'
 require 'csv'
 require 'date'
 
+CSV_DATE_FMT = '%m/%d/%Y %H:%M'
 SIZE_PROPERTIES = ['tops', 'sports-bra', 'leggings', 'sports-jacket']
 HEADERS = ["order_number","groupon_number","order_date","merchant_sku_item","quantity_requested","shipment_method_requested","shipment_address_name","shipment_address_street","shipment_address_street_2","shipment_address_city","shipment_address_state","shipment_address_postal_code","shipment_address_country","gift","gift_message","quantity_shipped","shipment_carrier","shipment_method","shipment_tracking_number","ship_date","groupon_sku","custom_field_value","permalink","item_name","vendor_id","salesforce_deal_option_id","groupon_cost","billing_address_name","billing_address_street","billing_address_city","billing_address_state","billing_address_postal_code","billing_address_country","purchase_order_number","product_weight","product_weight_unit","product_length","product_width","product_height","product_dimension_unit","customer_phone","incoterms","hts_code","3pl_name","3pl_warehouse_location","kitting_details","sell_price","deal_opportunity_id","shipment_strategy","fulfillment_method","country_of_origin","merchant_permalink","feature_start_date","feature_end_date","bom_sku","payment_method","color_code","tax_rate","tax_price"]
 
@@ -56,7 +57,7 @@ SIZE_SKU_DATA = load_size_sku_data('data/sku_sizes.csv')
 
 def create_orders
   # get all unfulfilled orders
-  my_shopify_orders = ShopifyOrder.where('created_at BETWEEN ? AND ?', 14.days.ago, Time.current)
+  my_shopify_orders = ShopifyOrder.where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
   # *** ADD CONDITION FOR ONLY UNFULFILLED
   
   puts "** Number of orders to fulfill: #{my_shopify_orders.length} **"
@@ -68,7 +69,7 @@ end
 def to_row_hash(order)
   #puts "NEW ORDER"
 
-  unique_order_number = "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
+  #unique_order_number = "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
   billing_address = order.billing_address
   shipping_address = order.shipping_address
   line_items = order.line_items
@@ -76,11 +77,13 @@ def to_row_hash(order)
   expanded_line_items = line_items.flat_map{|item| map_multiple_products MULTIPLE_PRODUCT_DATA, SIZE_SKU_DATA, item}
   expanded_line_items.map do |line_item|
     {
-      'unique_order_number' => order.name,
-      'customer_phone' => billing_address["phone"],
+      'order_number' => order.name,
+      'order_date' => order.processed_at.strftime(CSV_DATE_FMT),
+      'customer_phone' => billing_address["phone"].try('gsub', /[^0-9]/, ''),
       'tax_rate' => line_item['taxable'] ? line_item['tax_lines'].pluck('rate').sum * 100 : 0,
       'tax_price' => line_item['taxable'] ? line_item['tax_lines'].pluck('price').map(&:to_f).sum : 0,
       'sell_price' => line_item['price'],
+      'shipment_method_requested' => (order.shipping_lines.first['code'] rescue 'GROUND'),
       'quantity_requested' => line_item['quantity'],
       'merchant_sku_item' => line_item['sku'],
       'product_weight' => line_item['grams'],
@@ -105,7 +108,7 @@ end
 
 def name_csv
   rand_num_addon = rand(0..200).to_s
-  "TEST_Orders_#{Time.current.strftime("%^B%Y")}_#{rand_num_addon}.csv"
+  "TEST_Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
 end
 
 def create_csv
@@ -117,6 +120,7 @@ def create_csv
     csv << HEADERS
     orders.each{|data| csv << HEADERS.map{|key| data[key]} }
   end
+  puts "wrote to #{filename}"
 end
 
 
@@ -144,21 +148,18 @@ def map_multiple_products(multiple_product_data, size_sku_data, line_item)
     'tax_lines' => [],
     'grams' => 0,
     'taxable' => false,
+    'price' => 0,
     'properties' => prop_hash.merge({
       'main-product' => false,
     }).map{|k,v| {'name' => k, 'value' => v}},
   }}
 
-  if output_items.length > 0
-    #binding.pry
-    puts "DETECTED MULTI ITEM PRODUCT: #{line_item['product_id']} #{line_item['title']}"
-    puts "added #{output_items.length}"
-  end
+  #if output_items.length > 0
+    ##binding.pry
+    #puts "DETECTED MULTI ITEM PRODUCT: #{line_item['product_id']} #{line_item['title']}"
+    #puts "added #{output_items.length}"
+  #end
 
   #puts "mapped #{output_items}"
   output_items.map{|skus| line_item.merge(skus)} + [line_item]
-end
-
-def hash_to_row(headers, row_hash)
-  headers.map{|key| row_hash[key]}
 end
