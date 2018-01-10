@@ -60,7 +60,7 @@ def create_orders
   # get all unfulfilled orders
   my_shopify_orders = ShopifyOrder
     .where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
-    .where('json_array_length(fulfillments) > 0')
+    .where('json_array_length(fulfillments) = 0')
   
   puts "** Number of orders to fulfill: #{my_shopify_orders.length} **"
   puts "*************"
