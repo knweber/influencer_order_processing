@@ -107,7 +107,6 @@ def to_row_hash(order)
 end
 
 def name_csv
-  rand_num_addon = rand(0..200).to_s
   "TEST_Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
 end
 

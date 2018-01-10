@@ -26,8 +26,29 @@ docker run --rm --env-file .env shopify_cache rake pull_collects
 docker run --rm --env-file .env shopify_cache rake pull_products
 ```
 
-## Environment Variables
+Create the csv:
+* Put the size and multiple product data in the `/data` folder.
 
+* Run the rake task:
+```
+docker run --rm --env-file .env -v /tmp:/tmp shopify_cache rake create_csv
+```
+
+* Retrieve the output from the `/tmp` folder.
+
+
+## Environment Variables
+The following environment variables are required:
+
+```
+REDIS_URL=redis://...
+RACK_ENV=production
+SHOPIFY_API_KEY=
+SHOPIFY_SHARED_SECRET=
+SHOPIFY_PASSWORD=
+SHOPIFY_SHOP_NAME=ellieactive
+DATABASE_URL=postgres://...
+```
 
 ## Development
 
