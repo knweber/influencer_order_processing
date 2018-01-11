@@ -14,8 +14,11 @@ get '/uploads/new' do
 end
 
 post '/uploads' do
+  File.open('invalid.txt','a+') do |file|
+    file.truncate(0)
+  end
   influencer_data = params[:file][:tempfile].read
-  influencer_rows = CSV.parse(influencer_data, headers: true)
+  influencer_rows = CSV.parse(influencer_data, headers: true, header_converters: :symbol)
   if process_users(influencer_rows)
     erb :'uploads/show'
   else
