@@ -1,0 +1,33 @@
+<h3 class="new-order-title"><strong>Select Items for Order:</strong></h3>
+
+<br />
+
+  <form class="order-form field" action="/orders" method="post">
+
+    <div class="field">
+      <input type="text" name="order[collection_id]" placeholder="Enter Collection ID" />
+    </div>
+
+    <div class="field">
+      <input class="checkbox" type="checkbox" name="order[Leggings]">    Leggings</input>
+    </div>
+
+    <div class="field">
+      <input class="checkbox" type="checkbox" name="order[Sports Bra]">    Sports Bra</input>
+    </div>
+
+    <div class="field">
+      <input class="checkbox" type="checkbox" name="order[Jacket]">   Sports Jacket</input>
+    </div>
+
+    <div class="field">
+      <input class="checkbox" type="checkbox" name="order[Tops]">    Top</input>
+    </div>
+
+    <div class="field">
+      <input class="checkbox" type="checkbox" name="order[Wrap]">    Wrap</input>
+    </div>
+
+    <input class="submit_button button is-light" type="submit" value="Create Order" />
+  </form>
+</div>
