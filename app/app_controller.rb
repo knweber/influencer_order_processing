@@ -1,4 +1,5 @@
 require 'sinatra'
+require '../lib/process_users'
 
 get '/' do
   redirect '/uploads/new'
@@ -10,6 +11,8 @@ end
 
 post '/uploads' do
   influencer_data = params[:file][:tempfile].read
+  influencer_rows = CSV.parse(influencer_data, headers: true)
+  process_users(influencer_rows)
   erb :'uploads/show'
 end
 
@@ -22,5 +25,6 @@ post '/orders' do
 end
 
 get '/download' do
+
   erb :'tickets/show'
 end
