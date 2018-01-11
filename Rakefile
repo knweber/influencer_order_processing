@@ -4,6 +4,8 @@ require "sinatra/activerecord/rake"
 require_relative 'lib/models'
 require_relative 'lib/pull'
 
+require ::File.expand_path('../config/environment', __FILE__)
+
 ActiveRecord::Base.establish_connection ENV['DATABASE_URL']
 
 Rake::TestTask.new(:test) do |t|

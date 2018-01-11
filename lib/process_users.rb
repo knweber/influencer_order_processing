@@ -4,24 +4,24 @@ require 'email_address'
 
 def process_users(user_csv_data)
   user_mapping = {
-        first_name: user[0],
-        last_name: user[1],
-        address1: user[2],
-        address2: user[3],
-        city: user[4],
-        state: user[5],
-        zip: user[6],
-        email: user[7],
-        phone: user[8],
-        bra_size: user[9],
-        top_size: user[10],
-        bottom_size: user[11],
-        sports_jacket_size: user[12],
-        three_item: user[13]
+        first_name: user_csv_data[0],
+        last_name: user_csv_data[1],
+        address1: user_csv_data[2],
+        address2: user_csv_data[3],
+        city: user_csv_data[4],
+        state: user_csv_data[5],
+        zip: user_csv_data[6],
+        email: user_csv_data['email'],
+        phone: user_csv_data[8],
+        bra_size: user_csv_data[9],
+        top_size: user_csv_data[10],
+        bottom_size: user_csv_data[11],
+        sports_jacket_size: user_csv_data[12],
+        three_item: user_csv_data[13]
       }
 
   user_csv_data.each do |user|
-    if check_email(user[7])
+    if check_email(user['email'])
       check_accented_char(user[0])
       check_accented_char(user[1])
       three_item_to_bool(user[13])

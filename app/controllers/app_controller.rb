@@ -1,5 +1,6 @@
 require 'sinatra'
-require '../lib/process_users'
+require_relative '../../lib/process_users'
+require_relative '../../lib/models'
 
 get '/' do
   redirect '/uploads/new'
