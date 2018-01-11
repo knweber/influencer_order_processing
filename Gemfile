@@ -17,6 +17,7 @@ group :development do
   gem 'pry-stack_explorer'
   gem 'pry-rescue'
   gem 'sqlite3'
+  gem 'shotgun'
 end
 
 # Added at 2018-01-04 19:08:52 -0800 by ryan:
