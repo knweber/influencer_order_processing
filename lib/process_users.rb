@@ -25,9 +25,18 @@ def process_users(user_csv_data)
       check_accented_char(user[0])
       check_accented_char(user[1])
       three_item_to_bool(user[13])
-      puts "New Influencer"
+      new_influencer = Influencer.new(user_mapping)
+      if new_influencer.valid?
+        new_influencer.save
+        puts "New Influencer: #{new_influencer.first_name} #{new_influencer.last_name}, #{new_influencer.email}"
+      end
     else
-      # write records to file and redirect w/error
+      filename = '/tmp/invalid.txt'
+      File.open(filename,'w+') do |file|
+        file.write(DateTime.now)
+        file.write("\n")
+        file.write(user)
+      end
       return false
     end
   end

@@ -6,14 +6,21 @@ get '/' do
 end
 
 get '/uploads/new' do
+  if Influencer.any?
+    Influencer.destroy_all
+  end
   erb :'uploads/new'
 end
 
 post '/uploads' do
   influencer_data = params[:file][:tempfile].read
   influencer_rows = CSV.parse(influencer_data, headers: true)
-  process_users(influencer_rows)
-  erb :'uploads/show'
+  if process_users(influencer_rows)
+    erb :'uploads/show'
+  else
+    return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."]}
+  end
+
 end
 
 get '/orders/new' do
@@ -25,6 +32,5 @@ post '/orders' do
 end
 
 get '/download' do
-
-  erb :'tickets/show'
+  send_file '/tmp/invalid.txt'
 end
