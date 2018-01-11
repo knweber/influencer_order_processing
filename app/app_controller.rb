@@ -9,6 +9,7 @@ get '/uploads/new' do
 end
 
 post '/uploads' do
+  influencer_data = params[:file][:tempfile].read
   erb :'uploads/show'
 end
 
