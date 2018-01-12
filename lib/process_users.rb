@@ -3,7 +3,7 @@ require 'csv'
 require 'email_address'
 
 def process_users(user_csv_data)
-  File.open('invalid_emails.txt','a+') do |file|
+  File.open('/tmp/invalid_emails.txt','a+') do |file|
     file.truncate(0)
   end
   # user_mapping = {
@@ -22,11 +22,9 @@ def process_users(user_csv_data)
   #       sports_jacket_size: user_csv_data[12],
   #       three_item: user_csv_data[13]
   #     }
-  puts user_csv_data
-  user_csv_data.each do |user|
-    if check_email(user,user[7])
-      check_accented_char(user[0])
-      check_accented_char(user[1])
+
+  if check_email(user_csv_data)
+    user_csv_data.each do |user|
       three_item_to_bool(user[13])
       new_influencer = Influencer.new(
         {
@@ -62,20 +60,19 @@ def three_item_to_bool(user_three_item)
   end
 end
 
-def check_accented_char(name)
-  accented_letters = 'ŠšŽžÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸÞàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿþƒ'
-  without_accents = 'SsZzAAAAAAACEEEEIIIINOOOOOOUUUUYYBaaaaaaaceeeeiiiinoooooouuuuyybf'
-  name.tr(accented_letters,without_accents)
-end
-
-def check_email(user,user_email)
-  if !EmailAddress.valid?(user_email)
-    filename = '/tmp/invalid.txt'
-    File.open(filename,'a+') do |file|
-      file.write(DateTime.now)
-      file.write("\n")
-      file.write(user)
+def check_email(users)
+  filename = '/tmp/invalid.txt'
+  users.each do |user|
+    email = user[7]
+    if email.include?("example") || email.include?("gmaill") || email.include?("..")
+      File.open(filename,'a+') do |file|
+        file.write("\n")
+        file.write(user[0] + " " + user[1] + ", " + user[7])
+      end
     end
+  end
+  data = File.read(filename)
+  if data.length != 0
     return false
   else
     return true
