@@ -7,27 +7,35 @@ get '/' do
 end
 
 get '/uploads/new' do
-  if Influencer.any?
-    Influencer.destroy_all
-  end
+  Influencer.destroy_all
   erb :'uploads/new'
 end
 
 post '/uploads' do
-  File.open('/tmp/invalid.txt','a+') do |file|
+  puts "NUM OF INFLUENCERS: " + Influencer.count.to_s
+  filename = '/tmp/invalid.txt'
+  File.open(filename,'a+') do |file|
     file.truncate(0)
   end
   influencer_data = params[:file][:tempfile].read
   utf_data = influencer_data.force_encoding('iso8859-1').encode('utf-8')
   influencer_rows = CSV.parse(utf_data, headers: true, header_converters: :symbol)
 
-
-  if process_users(influencer_rows)
-    erb :'uploads/show'
+  if !check_email(influencer_rows)
+    status 422
+    return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."] }
   else
-    return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."]}
+    Influencer.destroy_all
+    influencer_rows.each do |user|
+      if !create_user(user)
+        File.open(filename,'a+') do |file|
+          file.write(user)
+        end
+        return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."] }
+      end
+    end
+    erb :'uploads/show'
   end
-
 end
 
 get '/orders/new' do
