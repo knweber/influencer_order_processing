@@ -56,7 +56,7 @@ SIZE_SKU_DATA = load_size_sku_data('data/sku_sizes.csv')
 # 40 customer phone number
 # 46 sell price
 
-def create_orders
+def unprocessed_orders
   # get all unfulfilled orders
   my_shopify_orders = ShopifyOrder
     .where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
@@ -65,7 +65,7 @@ def create_orders
   puts "** Number of orders to fulfill: #{my_shopify_orders.length} **"
   puts "*************"
 
-  my_shopify_orders.flat_map{|order| to_row_hash(order)}
+  my_shopify_orders
 end
 
 def to_row_hash(order)
@@ -112,10 +112,10 @@ def name_csv
   "TEST_Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
 end
 
-def create_csv
+def create_csv(orders_list)
   # create empty CSV file with appropriate name
   filename = '/tmp/' + name_csv
-  orders = create_orders
+  orders = orders_list.flat_map{|order| to_row_hash(order)}
   puts "#{orders.length} Order line items"
   CSV.open(filename, 'w', headers: HEADERS) do |csv|
     csv << HEADERS

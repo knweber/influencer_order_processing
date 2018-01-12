@@ -43,5 +43,14 @@ end
 
 desc 'create orders csv'
 task :create_csv do |t|
-  create_csv
+  create_csv(unprocessed_orders)
+end
+
+desc 'create tracking from csv'
+task :process_tracking do |t|
+  if ENV['FILE'].nil?
+    puts 'Requires FILE for processing. Usage: rake process_tracking FILE=<filepath>'
+    exit
+  end
+  process_tracking ENV['FILE']
 end
