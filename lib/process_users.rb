@@ -1,6 +1,5 @@
 require 'date'
 require 'csv'
-require 'email_address'
 
 def process_users(user_csv_data)
   File.open('/tmp/invalid_emails.txt','a+') do |file|
