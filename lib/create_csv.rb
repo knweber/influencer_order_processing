@@ -1,6 +1,7 @@
 require 'json'
 require 'csv'
 require 'date'
+require 'securerandom'
 
 CSV_DATE_FMT = '%m/%d/%Y %H:%M'
 SIZE_PROPERTIES = ['tops', 'sports-bra', 'leggings', 'sports-jacket']
@@ -69,9 +70,6 @@ def unprocessed_orders
 end
 
 def to_row_hash(order)
-  #puts "NEW ORDER"
-
-  #unique_order_number = "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
   billing_address = order.billing_address
   shipping_address = order.shipping_address
   line_items = order.line_items
@@ -175,6 +173,6 @@ def shipping_mapping(code)
   mapping[code] || 'GROUND'
 end
 
-def get_master_product(collection_id)
-  placeholder = ShopifyAPI::CustomCollection.find(collection_id)
+def generate_order_number
+  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
 end
