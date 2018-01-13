@@ -174,3 +174,7 @@ def shipping_mapping(code)
   }
   mapping[code] || 'GROUND'
 end
+
+def get_master_product(collection_id)
+  placeholder = ShopifyAPI::CustomCollection.find(collection_id)
+end

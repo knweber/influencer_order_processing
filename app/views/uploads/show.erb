@@ -1,0 +1,19 @@
+<% if Influencer.count != 0 %>
+  <div class="notification is-success success-influencers">
+    <p>
+      <%= Influencer.count %> Influencers successfully created
+    </p>
+  </div>
+<% end %>
+
+<div class="order-button-container">
+  <div class="button-row">
+    <div class="three-item-influencers">
+      <p></p>
+      <p>
+        <a class="button is-light" href="/orders/new">Create Order</a>
+      </p>
+      <p></p>
+    </div>
+  </div>
+</div>

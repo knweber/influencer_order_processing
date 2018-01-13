@@ -1,6 +1,19 @@
 require 'sinatra'
 require_relative '../../lib/process_users'
 require_relative '../../lib/models'
+require 'httparty'
+require 'dotenv'
+require 'shopify_api'
+
+$apikey = ENV['SHOPIFY_API_KEY']
+$password = ENV['SHOPIFY_PASSWORD']
+$shopname = ENV['SHOPIFY_SHOP_NAME']
+$secret = ENV['SHOPIFY_SHARED_SECRET']
+
+ShopifyAPI::Base.site = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
+ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
+
+base_url = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
 
 get '/' do
   redirect '/uploads/new'
@@ -34,7 +47,7 @@ post '/uploads' do
         return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."] }
       end
     end
-    erb :'uploads/show'
+    erb :'orders/new'
   end
 end
 
@@ -43,6 +56,30 @@ get '/orders/new' do
 end
 
 post '/orders' do
+  order_params = params[:order]
+  placeholder_id = order_params['collection_id']
+
+  collection = ShopifyAPI::CustomCollection.find(placeholder_id)
+  puts collection.as_json
+
+  collects = ShopifyAPI::Collect.find(:params => {:collection_id => collection.id})
+  # prod = ShopifyAPI::Product.find(collects.product_id)
+  # curr_prod = ShopifyAPI::Product.where(:params => {:collection_id => collects.as_json[0]['product_id']})
+
+  # puts "Collection:"
+  # puts collection.as_json
+  # puts "_________"
+  # puts "Collect:"
+  puts collects
+  # puts "_________"
+
+  # puts "Prod:"
+  # puts prod.as_json
+  # puts "Curr Prod:"
+  # puts curr_prod.as_json[0]
+  # puts "***"
+  # puts curr_prod.as_json[1]
+
   erb :'orders/show'
 end
 
