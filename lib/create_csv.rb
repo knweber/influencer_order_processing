@@ -195,12 +195,11 @@ def create_output_csv(orders)
   CSV.open(filename, 'w', headers: HEADERS) do |csv|
     csv << HEADERS
     orders.each do |order|
-      p order.influencer_id
       influencer = Influencer.find(order.influencer_id)
       data_out = [
           order.name, #0
           "", #1
-          order.processed_at.strftime(CSV_DATE_FMT), #2
+          order.processed_at, #2
           order.line_item['merchant_sku_item'], #3
           1, #4
           "", #5

@@ -92,7 +92,7 @@ post '/orders' do
       new_order = InfluencerOrder.new({
         'billing_address' => billing_address,
         'shipping_address' => shipping_address,
-        'processed_at' => Time.current,
+        'processed_at' => DateTime.now,
         'influencer_id' => user.id
       })
 
