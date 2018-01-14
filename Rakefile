@@ -24,11 +24,12 @@ end
 desc 'refresh products cache from shopify'
 task :pull_products do |t|
   pull_all(ShopifyAPI::Product, Product)
-end
-
-desc 'refresh product_variants collects cache from shopify'
-task :pull_product_variants do |t|
-  pull_all(ShopifyAPI::ProductVariant, ProductVariant)
+  variants = Product.all.pluck(:variants).flatten
+  puts "adding #{variants.count} product variants"
+  variants.each do |variant|
+    ProductVariant.find_or_initialize_by(id: variant['id'])
+      .update(variant)
+  end
 end
 
 desc 'refresh custom collections cache from shopify'
@@ -51,6 +52,16 @@ task :process_tracking do |t|
   if ENV['FILE'].nil?
     puts 'Requires FILE for processing. Usage: rake process_tracking FILE=<filepath>'
     exit
+  elsif ENV['FILE'] == 'STDIN'
+    puts 'Processing STDIN'
+    file = STDIN
+  else
+    file = File.open(ENV['FILE'], 'r')
   end
-  process_tracking ENV['FILE']
+  OrderTracking.process_tracking_csv file
+end
+
+desc 'echo stdin'
+task :echo do |t|
+  puts STDIN.read
 end
