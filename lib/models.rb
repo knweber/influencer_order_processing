@@ -17,3 +17,11 @@ end
 class Collect < ActiveRecord::Base
   self.table_name = 'shopify_collects'
 end
+
+class Influencer < ActiveRecord::Base
+  self.table_name = 'influencers'
+end
+
+class InfluencerOrder < ActiveRecord::Base
+  self.table_name = 'influencer_orders'
+end

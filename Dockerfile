@@ -7,7 +7,7 @@ RUN gem install bundler
 RUN mkdir -p /app/lib /app/db /app/test /app/data
 WORKDIR /app
 COPY Gemfile Gemfile.lock /app/
-RUN bundle install 
+RUN bundle install
 COPY db /app/db/
 COPY data /app/data/
 COPY Rakefile /app/

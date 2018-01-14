@@ -1,10 +1,11 @@
 require 'json'
 require 'csv'
 require 'date'
+require 'securerandom'
 
 CSV_DATE_FMT = '%m/%d/%Y %H:%M'
 SIZE_PROPERTIES = ['tops', 'sports-bra', 'leggings', 'sports-jacket']
-HEADERS = ["order_number","groupon_number","order_date","merchant_sku_item","quantity_requested","shipment_method_requested","shipment_address_name","shipment_address_street","shipment_address_street_2","shipment_address_city","shipment_address_state","shipment_address_postal_code","shipment_address_country","gift","gift_message","quantity_shipped","shipment_carrier","shipment_method","shipment_tracking_number","ship_date","groupon_sku","custom_field_value","permalink","item_name","vendor_id","salesforce_deal_option_id","groupon_cost","billing_address_name","billing_address_street","billing_address_city","billing_address_state","billing_address_postal_code","billing_address_country","purchase_order_number","product_weight","product_weight_unit","product_length","product_width","product_height","product_dimension_unit","customer_phone","incoterms","hts_code","3pl_name","3pl_warehouse_location","kitting_details","sell_price","deal_opportunity_id","shipment_strategy","fulfillment_method","country_of_origin","merchant_permalink","feature_start_date","feature_end_date","bom_sku","payment_method","color_code","tax_rate","tax_price"]
+HEADERS = ["order_number","groupon_number","order_date","merchant_sku_item","quantity_requested","shipment_method_requested","shipment_address_name","shipment_address_street","shipment_address_street_2","shipment_address_city","shipment_address_state","shipment_address_postal_code","shipment_address_country","gift","gift_message","quantity_shipped","shipment_carrier","shipment_method","shipment_tracking_number","ship_date","groupon_sku","custom_field_value","permalink","item_name","vendor_id","salesforce_deal_option_id","groupon_cost","billing_address_name","billing_address_street","billing_address_city","billing_address_state","billing_address_postal_code","billing_address_country","purchase_order_number","product_weight","product_weight_unit","product_length","product_width","product_height","product_dimension_unit","customer_phone","incoterms","hts_code","3pl_name","3pl_warehouse_location","kitting_details","sell_price","deal_opportunity_id","shipment_strategy","fulfillment_method","country_of_origin","merchant_permalink","feature_start_date","feature_end_date","bom_sku","payment_method","color_code","tax_rate","tax_price\n"]
 
 def load_csv(filename)
   csv = CSV.new(File.open(filename, 'r'), headers: :first_row).read
@@ -56,27 +57,24 @@ SIZE_SKU_DATA = load_size_sku_data('data/sku_sizes.csv')
 # 40 customer phone number
 # 46 sell price
 
-def create_orders
+def unprocessed_orders
   # get all unfulfilled orders
   my_shopify_orders = ShopifyOrder
     .where('created_at BETWEEN ? AND ?', Time.zone.local(2017, 12, 27, 0, 0), Time.current)
     .where('json_array_length(fulfillments) = 0')
-  
+
   puts "** Number of orders to fulfill: #{my_shopify_orders.length} **"
   puts "*************"
 
-  my_shopify_orders.flat_map{|order| to_row_hash(order)}
+  my_shopify_orders
 end
 
 def to_row_hash(order)
-  #puts "NEW ORDER"
-
-  #unique_order_number = "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
   billing_address = order.billing_address
   shipping_address = order.shipping_address
-  line_items = order.line_items
+  line_items = order.line_item
   # for each ShopifyOrder in DB, create at least one 'order' -- if ShopifyOrder only had one line item, only one order will be created, while multiple orders (CSV rows) will be created if the ShopifyOrder contains multiple line items
-  expanded_line_items = line_items.flat_map{|item| map_multiple_products MULTIPLE_PRODUCT_DATA, SIZE_SKU_DATA, item}
+  expanded_line_items = line_items.flat_map{|item| map_multiple_products(MULTIPLE_PRODUCT_DATA, SIZE_SKU_DATA, item)}
   expanded_line_items.map do |line_item|
     {
       'order_number' => order.name,
@@ -112,10 +110,10 @@ def name_csv
   "TEST_Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
 end
 
-def create_csv
+def create_csv(orders_list)
   # create empty CSV file with appropriate name
   filename = '/tmp/' + name_csv
-  orders = create_orders
+  orders = orders_list.flat_map{|order| to_row_hash(order)}
   puts "#{orders.length} Order line items"
   CSV.open(filename, 'w', headers: HEADERS) do |csv|
     csv << HEADERS
@@ -173,4 +171,94 @@ def shipping_mapping(code)
     'Express Shipping (1-2 days)' => 'PRIORITY 2',
   }
   mapping[code] || 'GROUND'
+end
+
+def generate_order_number
+  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
+end
+
+def map_user_sizes(user,type)
+  mapping = {
+    'Leggings' => user.bottom_size,
+    'Sports Bra' => user.bra_size,
+    'Jacket' => user.sports_jacket_size,
+    'Tops' => user.top_size,
+    'Equipment' => 'ONE SIZE',
+    'Accessories' => 'ONE SIZE',
+    'Wrap' => 'ONE SIZE'
+   }
+  mapping[type]
+end
+
+def create_output_csv(orders)
+  filename = '/tmp/' + name_csv
+  CSV.open(filename, 'w', headers: HEADERS) do |csv|
+    csv << HEADERS
+    orders.each do |order|
+      influencer = Influencer.find(order.influencer_id)
+      data_out = [
+          order.name, #0
+          "", #1
+          order.processed_at, #2
+          order.line_item['merchant_sku_item'], #3
+          1, #4
+          "", #5
+          order.shipping_address['name'], #6
+          order.shipping_address['address1'], #7
+          order.shipping_address['address2'], #8
+          order.shipping_address['city'], #9
+          order.shipping_address['province_code'], #10
+          order.shipping_address['zip'], #11
+          order.shipping_address['country_code'], #12
+          "FALSE", #13
+          "", #14
+          "", #15
+          "", #16
+          "", #17
+          "", #18
+          "", #19
+          "", #20
+          "", #21
+          "", #22
+          order.line_item["item_name"], #23
+          "", #24
+          "", #25
+          "", #26
+          order.billing_address['name'], #27
+          order.billing_address['address1'], #28
+          order.billing_address['city'], #29
+          order.billing_address['province_code'], #30
+          order.billing_address['zip'], #31
+          order.billing_address['country_code'], #32
+          "", #33
+          order.line_item['product_weight'], #34
+          "", #35
+          "", #36
+          "", #37
+          "", #38
+          "", #39
+          influencer.phone, #40
+          "", #41
+          "", #42
+          "", #43
+          "", #44
+          "", #45
+          order.line_item['sell_price'], #46
+          "", #47
+          "", #48
+          "", #49
+          "", #50
+          "", #51
+          "", #52
+          "", #53
+          "", #54
+          "", #55
+          "", #56
+          " \n" #57
+        ]
+        csv << data_out
+    end
+    # orders.each{|data| csv << HEADERS.map{|key| data[key]} }
+  end
+  send_file(filename, :filename => filename)
 end
