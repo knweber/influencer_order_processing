@@ -62,14 +62,20 @@ post '/orders' do
 
   collection = ShopifyAPI::CustomCollection.find(placeholder_id)
 
-  prods = ShopifyAPI::Product.where(:collection_id => collection.id)
-
   type_mapping = {
     'Sports Bra' => 'bra_size',
     'Leggings' => 'bottom_size',
     'Tops' => 'top_size',
     'Jacket' => 'sports_jacket_size'
   }
+
+  local_collects = Collect.where(collection_id: collection.id)
+  order_items = []
+  local_collects.each do |coll|
+    line_item = Product.find(coll.product_id)
+     order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+  end
+
 
   orders = []
   Influencer.all.each do |user|
@@ -84,44 +90,46 @@ post '/orders' do
     }
 
     shipping_address = address
-    shipping_address.first_name = user.first_name
-    shipping_address.last_name = user.last_name
+    shipping_address['first_name'] = user['first_name']
+    shipping_address['last_name'] = user['last_name']
     billing_address = address
-    billing_address.name = user.first_name + " " + user.last_name
+    billing_address['name'] = user['first_name'] + " " + user['last_name']
 
-    new_order = {
+    # new_order = {
+    #   'name' => generate_order_number,
+    #   'billing_address' => billing_address,
+    #   'shipping_address' => shipping_address,
+    #   'processed_at' => Time.current
+    # }
+
+    new_order = ShopifyOrder.create({
+      'id': rand(20),
       'name' => generate_order_number,
       'billing_address' => billing_address,
       'shipping_address' => shipping_address,
       'processed_at' => Time.current
-    }
+      })
 
-    prods.each do |prod|
-      type = prod.type
-      size_label = type_mapping[type]
-      options = []
-      SIZE_SKU_DATA.each do |row|
-        if row[1] == type && row[3] ==
-          options.push(row)
-        end
-      end
+    # order_items.each do |prod|
 
-      variants = map_multiple_products(MULTIPLE_PRODUCT_DATA, SIZE_SKU_DATA, prod.to_json).variants
-      user.bra_size
-      user.top_size
-      user.bottom_size
-      user.sports_jacket_size
-    end
-    orders.push(to_row_hash(new_order))
+    # new_order['line_items'] = order_items
+    #   type = prod.type
+    #   size_label = type_mapping[type]
+    #   options = []
+    #   SIZE_SKU_DATA.each do |row|
+    #     if row[1] == type && row[3] ==
+    #       options.push(row)
+    #     end
+    #   end
+    #
+    # end
+    p new_order
+    p to_row_hash(new_order)
+    # orders.push(new_order)
+    # p new_order
+    puts "______"
   end
-  create_csv(orders)
-
-  # puts "_________"
-  # puts "**COLLECT:"
-  # puts collection.collects
-  # collect = ShopifyAPI::Collect.find(:params => {:collection_id => 2509570066})
-  # puts collect.to_json
-
+  # create_csv(orders)
 
   erb :'orders/show'
 end
