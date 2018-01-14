@@ -2,7 +2,6 @@ require 'sinatra'
 require_relative '../../lib/process_users'
 require_relative '../../lib/create_csv'
 require_relative '../../lib/models'
-require 'httparty'
 require 'dotenv'
 require 'shopify_api'
 
@@ -14,19 +13,17 @@ $secret = ENV['SHOPIFY_SHARED_SECRET']
 ShopifyAPI::Base.site = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
 ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
 
-base_url = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
-
 get '/' do
   redirect '/uploads/new'
 end
 
 get '/uploads/new' do
+  puts "Destroying influencers"
   Influencer.destroy_all
   erb :'uploads/new'
 end
 
 post '/uploads' do
-  puts "NUM OF INFLUENCERS: " + Influencer.count.to_s
   filename = '/tmp/invalid.txt'
   File.open(filename,'a+') do |file|
     file.truncate(0)
@@ -53,13 +50,14 @@ post '/uploads' do
 end
 
 get '/orders/new' do
+  InfluencerOrder.destroy_all
   erb :'orders/new'
 end
 
 post '/orders' do
-  InfluencerOrder.destroy_all
   order_params = params[:order]
   placeholder_id = order_params['collection_id']
+  orders = []
 
   collection = ShopifyAPI::CustomCollection.find(placeholder_id)
 
@@ -69,7 +67,7 @@ post '/orders' do
     line_item = Product.find(coll.product_id)
      order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
   end
-  orders = []
+
   Influencer.all.each do |user|
     address = {
       'address1' => user.address1,
@@ -87,19 +85,25 @@ post '/orders' do
     billing_address = address
     billing_address['name'] = user['first_name'] + " " + user['last_name']
 
-    new_order = InfluencerOrder.new({
-      'name' => generate_order_number,
-      'billing_address' => billing_address,
-      'shipping_address' => shipping_address,
-      'processed_at' => Time.current,
-      'influencer_id' => user.id
-      })
+    user_order_number = generate_order_number
 
     order_items.each do |prod|
+
+      new_order = InfluencerOrder.new({
+        'billing_address' => billing_address,
+        'shipping_address' => shipping_address,
+        'processed_at' => Time.current,
+        'influencer_id' => user.id
+      })
+
       prod_type = prod[0]['product_type']
       prod_title = prod[0]['title']
+
+
+
       user_item_size = map_user_sizes(user,prod_type)
       specific_var = ""
+
       prod[0]['variants'].each do |var|
         if user_item_size == var['title']
           specific_var = var
@@ -116,10 +120,16 @@ post '/orders' do
         'sell_price' => specific_var['price'],
         'product_weight' => specific_var['weight']
       }
-      new_order.save!
-      orders.push(new_order)
+
+      new_order['name'] = user_order_number
+      if new_order.valid?
+        new_order.save!
+        orders.push(new_order)
+      end
     end
   end
+
+  puts "Total orders: #{orders.length}"
   create_output_csv(orders)
   erb :'orders/show'
 end

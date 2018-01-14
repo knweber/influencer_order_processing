@@ -182,9 +182,12 @@ def map_user_sizes(user,type)
     'Leggings' => user.bottom_size,
     'Sports Bra' => user.bra_size,
     'Jacket' => user.sports_jacket_size,
-    'Tops' => user.top_size
-  }
-  mapping[type] || 'ONE SIZE'
+    'Tops' => user.top_size,
+    'Equipment' => 'ONE SIZE',
+    'Accessories' => 'ONE SIZE',
+    'Wrap' => 'ONE SIZE'
+   }
+  mapping[type]
 end
 
 def create_output_csv(orders)
@@ -192,6 +195,7 @@ def create_output_csv(orders)
   CSV.open(filename, 'w', headers: HEADERS) do |csv|
     csv << HEADERS
     orders.each do |order|
+      p order.influencer_id
       influencer = Influencer.find(order.influencer_id)
       data_out = [
           order.name, #0
