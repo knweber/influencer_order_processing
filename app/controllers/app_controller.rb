@@ -62,13 +62,6 @@ post '/orders' do
 
   collection = ShopifyAPI::CustomCollection.find(placeholder_id)
 
-  type_mapping = {
-    'Sports Bra' => 'bra_size',
-    'Leggings' => 'bottom_size',
-    'Tops' => 'top_size',
-    'Jacket' => 'sports_jacket_size'
-  }
-
   local_collects = Collect.where(collection_id: collection.id)
   order_items = []
   local_collects.each do |coll|
@@ -95,40 +88,74 @@ post '/orders' do
     billing_address = address
     billing_address['name'] = user['first_name'] + " " + user['last_name']
 
-    # new_order = {
-    #   'name' => generate_order_number,
-    #   'billing_address' => billing_address,
-    #   'shipping_address' => shipping_address,
-    #   'processed_at' => Time.current
-    # }
-
-    new_order = ShopifyOrder.create({
-      'id': rand(20),
+    new_order = {
       'name' => generate_order_number,
       'billing_address' => billing_address,
       'shipping_address' => shipping_address,
       'processed_at' => Time.current
-      })
+      }
 
-    # order_items.each do |prod|
+    order_items.each do |prod|
+      prod_type = prod[0]['product_type']
+      prod_title = prod[0]['title']
+      vars = prod[0]['variants']
+      var_id = ""
+      var_sku = ""
+      var_price = ""
+      var_size = ""
 
-    # new_order['line_items'] = order_items
-    #   type = prod.type
-    #   size_label = type_mapping[type]
-    #   options = []
-    #   SIZE_SKU_DATA.each do |row|
-    #     if row[1] == type && row[3] ==
-    #       options.push(row)
-    #     end
-    #   end
-    #
-    # end
-    p new_order
-    p to_row_hash(new_order)
-    # orders.push(new_order)
-    # p new_order
+      vars.each do |var|
+        if prod_type == "Leggings"
+          if var['title'] == user.bottom_size
+            var_size = var['title']
+            var_id = var['id']
+            var_sku = var['sku']
+            var_price = var['price']
+          end
+        elsif prod_type == "Sports Bra"
+          if var['title'] == user.bra_size
+            var_size = var['title']
+            var_id = var['id']
+            var_sku = var['sku']
+            var_price = var['price']
+          end
+        elsif prod_type == "Jacket"
+          if var['title'] == user.sports_jacket_size
+            var_size = var['title']
+            var_id = var['id']
+            var_sku = var['sku']
+            var_price = var['price']
+          end
+        elsif prod_type == "Tops"
+          if var['title'] == user.top_size
+            var_size = var['title']
+            var_id = var['id']
+            var_sku = var['sku']
+            var_price = var['price']
+          end
+
+
+          # THIS ISN'T MAPPING CORRECTLY
+        elsif prod_type == "Wrap" || prod_type == "Equipment" || prod_type == "Accessories"
+          var_size == "ONE SIZE"
+          var_id = var['id']
+          var_sku = var['sku']
+          var_price = var['price']
+        end
+      end
+      # prod weight?
+      new_order['line_item'] = {
+        'merchant_sku_item' => var_sku,
+        'size' => var_size,
+        'quantity_requested' => prod[0]['quantity'],
+        'item_name' => prod_title,
+        'sell_price' => var_price
+      }
+      orders.push(new_order.as_json)
+    end
     puts "______"
   end
+  puts JSON.pretty_generate(orders)
   # create_csv(orders)
 
   erb :'orders/show'
