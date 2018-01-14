@@ -57,6 +57,7 @@ get '/orders/new' do
 end
 
 post '/orders' do
+  InfluencerOrder.destroy_all
   order_params = params[:order]
   placeholder_id = order_params['collection_id']
 
@@ -68,8 +69,6 @@ post '/orders' do
     line_item = Product.find(coll.product_id)
      order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
   end
-
-
   orders = []
   Influencer.all.each do |user|
     address = {
@@ -88,76 +87,40 @@ post '/orders' do
     billing_address = address
     billing_address['name'] = user['first_name'] + " " + user['last_name']
 
-    new_order = {
+    new_order = InfluencerOrder.new({
       'name' => generate_order_number,
       'billing_address' => billing_address,
       'shipping_address' => shipping_address,
-      'processed_at' => Time.current
-      }
+      'processed_at' => Time.current,
+      'influencer_id' => user.id
+      })
 
     order_items.each do |prod|
       prod_type = prod[0]['product_type']
       prod_title = prod[0]['title']
-      vars = prod[0]['variants']
-      var_id = ""
-      var_sku = ""
-      var_price = ""
-      var_size = ""
-
-      vars.each do |var|
-        if prod_type == "Leggings"
-          if var['title'] == user.bottom_size
-            var_size = var['title']
-            var_id = var['id']
-            var_sku = var['sku']
-            var_price = var['price']
-          end
-        elsif prod_type == "Sports Bra"
-          if var['title'] == user.bra_size
-            var_size = var['title']
-            var_id = var['id']
-            var_sku = var['sku']
-            var_price = var['price']
-          end
-        elsif prod_type == "Jacket"
-          if var['title'] == user.sports_jacket_size
-            var_size = var['title']
-            var_id = var['id']
-            var_sku = var['sku']
-            var_price = var['price']
-          end
-        elsif prod_type == "Tops"
-          if var['title'] == user.top_size
-            var_size = var['title']
-            var_id = var['id']
-            var_sku = var['sku']
-            var_price = var['price']
-          end
-
-
-          # THIS ISN'T MAPPING CORRECTLY
-        elsif prod_type == "Wrap" || prod_type == "Equipment" || prod_type == "Accessories"
-          var_size == "ONE SIZE"
-          var_id = var['id']
-          var_sku = var['sku']
-          var_price = var['price']
+      user_item_size = map_user_sizes(user,prod_type)
+      specific_var = ""
+      prod[0]['variants'].each do |var|
+        if user_item_size == var['title']
+          specific_var = var
         end
       end
+
       # prod weight?
       new_order['line_item'] = {
-        'merchant_sku_item' => var_sku,
-        'size' => var_size,
+        'product_id' => prod[0]['options'][0]['product_id'],
+        'merchant_sku_item' => specific_var['sku'],
+        'size' => specific_var['title'],
         'quantity_requested' => prod[0]['quantity'],
         'item_name' => prod_title,
-        'sell_price' => var_price
+        'sell_price' => specific_var['price'],
+        'product_weight' => specific_var['weight']
       }
-      orders.push(new_order.as_json)
+      new_order.save!
+      orders.push(new_order)
     end
-    puts "______"
   end
-  puts JSON.pretty_generate(orders)
-  # create_csv(orders)
-
+  create_output_csv(orders)
   erb :'orders/show'
 end
 

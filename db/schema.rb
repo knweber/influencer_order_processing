@@ -10,26 +10,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180111002327) do
+ActiveRecord::Schema.define(version: 20180114165044) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "influencer_orders", force: :cascade do |t|
+    t.string "name"
+    t.datetime "processed_at"
+    t.jsonb "billing_address"
+    t.jsonb "shipping_address"
+    t.jsonb "shipping_lines"
+    t.jsonb "line_item"
+    t.integer "influencer_id"
+  end
+
   create_table "influencers", force: :cascade do |t|
-    t.string "first_name", null: false
-    t.string "last_name", null: false
-    t.string "address1", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "address1"
     t.string "address2"
-    t.string "city", null: false
-    t.string "state", null: false
-    t.string "zip", null: false
-    t.string "email", null: false
+    t.string "city"
+    t.string "state"
+    t.string "zip"
+    t.string "email"
     t.string "phone"
-    t.string "bra_size", null: false
-    t.string "top_size", null: false
-    t.string "bottom_size", null: false
-    t.string "sports_jacket_size", null: false
-    t.boolean "three_item", null: false
+    t.string "bra_size"
+    t.string "top_size"
+    t.string "bottom_size"
+    t.string "sports_jacket_size"
+    t.boolean "three_item"
   end
 
   create_table "shopify_collects", id: :bigint, default: nil, force: :cascade do |t|
@@ -123,16 +133,20 @@ ActiveRecord::Schema.define(version: 20180111002327) do
     t.string "barcode"
     t.float "compare_at_price"
     t.datetime "created_at"
-    t.string "fullfillment_service"
+    t.string "fulfillment_service"
     t.integer "grams"
     t.bigint "image_id"
-    t.string "inventore_management"
+    t.string "inventory_management"
     t.string "inventory_policy"
     t.integer "inventory_quantity"
     t.integer "old_inventory_quantity"
     t.integer "inventory_quantity_adjustment"
+    t.bigint "inventory_item_id"
+    t.boolean "requires_shipping"
     t.json "metafield"
-    t.json "options"
+    t.string "option1"
+    t.string "option2"
+    t.string "option3"
     t.integer "position"
     t.float "price"
     t.bigint "product_id"
