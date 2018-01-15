@@ -56,16 +56,26 @@ end
 
 post '/orders' do
   order_params = params[:order]
-  placeholder_id = order_params['collection_id']
+  placeholder_3item_id = order_params['collection_3_id']
+  placeholder_5item_id = order_params['collection_5_id']
   orders = []
 
-  collection = ShopifyAPI::CustomCollection.find(placeholder_id)
+  collection3 = ShopifyAPI::CustomCollection.find(placeholder_3item_id)
+  collection5 = ShopifyAPI::CustomCollection.find(placeholder_5item_id)
 
-  local_collects = Collect.where(collection_id: collection.id)
-  order_items = []
-  local_collects.each do |coll|
+  local_collects3 = Collect.where(collection_id: collection3.id)
+  local_collects5 = Collect.where(collection_id: collection5.id)
+
+  order_3_items = []
+  order_5_items = []
+
+  local_collects3.each do |coll|
     line_item = Product.find(coll.product_id)
-     order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+     order_3_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+  end
+  local_collects5.each do |coll|
+    line_item = Product.find(coll.product_id)
+     order_5_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
   end
 
   Influencer.all.each do |user|
@@ -87,7 +97,15 @@ post '/orders' do
 
     user_order_number = generate_order_number
 
-    order_items.each do |prod|
+    items_for_order = []
+
+    if user['three-item'] == false
+      items_for_order = order_5_items
+    else
+      items_for_order = order_3_items
+    end
+
+    items_for_order.each do |prod|
 
       new_order = InfluencerOrder.new({
         'billing_address' => billing_address,
@@ -98,8 +116,6 @@ post '/orders' do
 
       prod_type = prod[0]['product_type']
       prod_title = prod[0]['title']
-
-
 
       user_item_size = map_user_sizes(user,prod_type)
       specific_var = ""
