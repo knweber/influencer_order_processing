@@ -36,7 +36,7 @@ end
 
 def process_tracking_csv(filepath)
   tracking_lines = CSV.open(filename, 'r').read
-  traching_lines.each do |line|
+  tracking_lines.each do |line|
     fulfill_order(*line)
   end
 end
