@@ -1,14 +1,17 @@
 <h3 class="new-order-title"><strong>Select Items for Order:</strong></h3>
-<p><em>Please make one order for 3-item and another for 5-item</em></p>
 
 <br />
 
   <form class="order-form field" action="/orders" method="post">
 
     <div class="field">
-      <input type="text" name="order[collection_id]" placeholder="Enter Collection ID" />
+      <input type="text" name="order[collection_3_id]" placeholder="3-Item Collection ID" />
     </div>
-    
+
+    <div class="field">
+      <input type="text" name="order[collection_5_id]" placeholder="5-Item Collection ID" />
+    </div>
+
     <!-- Implement later to enable POST requests? -->
     <!-- <div class="field">
       <input class="checkbox" type="checkbox" name="order[three-item]">    Three-Item Order</input>
