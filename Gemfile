@@ -10,8 +10,10 @@ gem 'sinatra-activerecord'
 gem 'pg'
 gem 'rake'
 gem 'httparty'
-gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-throttle.git'
 gem 'sendgrid-ruby'
+gem 'resque'
+gem 'redis'
+gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-throttle.git'
 
 group :development do
   gem 'pry'
