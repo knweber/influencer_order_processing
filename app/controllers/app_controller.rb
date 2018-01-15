@@ -2,7 +2,6 @@ require 'sinatra'
 require_relative '../../lib/process_users'
 require_relative '../../lib/create_csv'
 require_relative '../../lib/models'
-require 'dotenv'
 require 'shopify_api'
 
 $apikey = ENV['SHOPIFY_API_KEY']
@@ -61,7 +60,11 @@ post '/orders' do
   orders = []
 
   collection3 = ShopifyAPI::CustomCollection.find(placeholder_3item_id)
+  puts "___"
+  p collection3
   collection5 = ShopifyAPI::CustomCollection.find(placeholder_5item_id)
+  puts "*****"
+  p collection5
 
   local_collects3 = Collect.where(collection_id: collection3.id)
   local_collects5 = Collect.where(collection_id: collection5.id)
@@ -126,7 +129,6 @@ post '/orders' do
         end
       end
 
-      # prod weight?
       new_order['line_item'] = {
         'product_id' => prod[0]['options'][0]['product_id'],
         'merchant_sku_item' => specific_var['sku'],

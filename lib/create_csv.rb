@@ -258,7 +258,6 @@ def create_output_csv(orders)
         ]
         csv << data_out
     end
-    # orders.each{|data| csv << HEADERS.map{|key| data[key]} }
   end
   send_file(filename, :filename => filename)
 end
