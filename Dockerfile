@@ -3,6 +3,7 @@ FROM ruby:2.5-alpine
 ENV RUBY_ENV=development
 ENV PAGER=less
 VOLUME /tmp
+EXPOSE 9393
 
 RUN mkdir -p /app && \
   gem install bundler && \
@@ -15,4 +16,4 @@ COPY Gemfile Gemfile.lock /app/
 RUN bundle install && apk del build_deps
 COPY ./ /app/
 
-CMD ["shotgun"]
+CMD ["shotgun", "--host", "0.0.0.0"]
