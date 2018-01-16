@@ -9,6 +9,8 @@ class SendEmail
 
   def self.perform(args = {})
     user = Influencer.find(args['influencer_id'])
+    carrier = args['carrier']
+    tracking_num = args['tracking_num']
     send_email(user,carrier,tracking_num)
   end
 

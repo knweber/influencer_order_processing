@@ -62,6 +62,7 @@ SHOPIFY_SHARED_SECRET=
 SHOPIFY_PASSWORD=
 SHOPIFY_SHOP_NAME=ellieactive
 DATABASE_URL=postgres://...
+SENDGRID_API_KEY=
 ```
 
 ## Development
