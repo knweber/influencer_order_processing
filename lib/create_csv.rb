@@ -199,7 +199,7 @@ def create_output_csv(orders)
       data_out = [
           order.name, #0
           "", #1
-          order.processed_at, #2
+          order.processed_at.try(:strftime, CSV_DATE_FMT), #2
           order.line_item['merchant_sku_item'], #3
           1, #4
           "", #5
@@ -237,7 +237,7 @@ def create_output_csv(orders)
           "", #37
           "", #38
           "", #39
-          influencer.phone, #40
+          influencer.phone.try('gsub', /[^0-9]/, ''), #40
           "", #41
           "", #42
           "", #43
