@@ -24,7 +24,4 @@ end
 
 class InfluencerOrder < ActiveRecord::Base
   self.table_name = 'influencer_orders'
-
-  def self.like_shopify
-  end
 end
