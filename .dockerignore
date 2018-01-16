@@ -1,0 +1,15 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+.env*
+.dockerignore
+.gitignore
+.git
+Dockerfile*
+docker-compose.yml
+/tags

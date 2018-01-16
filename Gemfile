@@ -20,8 +20,8 @@ group :development do
   #gem 'pry-debugger'
   gem 'pry-stack_explorer'
   gem 'pry-rescue'
-  gem 'sqlite3'
   gem 'shotgun'
+  gem 'sqlite3'
 end
 
 # Added at 2018-01-04 19:08:52 -0800 by ryan:

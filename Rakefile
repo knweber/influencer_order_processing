@@ -3,6 +3,7 @@ require "rake/testtask"
 require "sinatra/activerecord/rake"
 require_relative 'lib/models'
 require_relative 'lib/pull'
+require 'resque/tasks'
 
 require ::File.expand_path('../config/environment', __FILE__)
 
