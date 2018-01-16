@@ -15,4 +15,4 @@ COPY Gemfile Gemfile.lock /app/
 RUN bundle install && apk del build_deps
 COPY ./ /app/
 
-CMD ["rackup"]
+CMD ["shotgun"]
