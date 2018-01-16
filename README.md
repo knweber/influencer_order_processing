@@ -1,6 +1,5 @@
-# ShopifyCache
-
-Provides rake tasks to cache Shopify API entities locally.
+# Influencer Order Processing
+Provides utilities to generate and track orders for influencers.
 
 ## Usage
 
@@ -8,22 +7,37 @@ Provides rake tasks to cache Shopify API entities locally.
 
 Build the image:
 ```shell
-git clone https://github.com/r-bar/fambrands_shopify_cache.git
-cd fambrands_shopify_cache
-docker build -t shopify_cache .
+git clone https://github.com/knweber/influencer_order_processing.git
+cd influencer_order_processing
+docker-compose build
 ```
 
 Run the migration:
 ```shell
-docker run --rm --env-file .env shopify_cache rake db:migrate
+docker-compose run --rm worker rake db:migrate
 ```
 
 Refresh the cache:
 ```shell
-docker run --rm --env-file .env shopify_cache rake pull_orders
-docker run --rm --env-file .env shopify_cache rake pull_custom_collections
-docker run --rm --env-file .env shopify_cache rake pull_collects
-docker run --rm --env-file .env shopify_cache rake pull_products
+docker-compose run --rm worker rake pull_orders
+docker-compose run --rm worker rake pull_custom_collections
+docker-compose run --rm worker rake pull_collects
+docker-compose run --rm worker rake pull_products
+```
+
+Launch the application:
+```
+docker-compose up -d
+```
+
+Stop the application:
+```
+docker-compose down
+```
+
+View logs:
+```
+docker-compose logs -f
 ```
 
 Create the csv:
@@ -31,7 +45,7 @@ Create the csv:
 
 * Run the rake task:
 ```
-docker run --rm --env-file .env -v /tmp:/tmp shopify_cache rake create_csv
+docker-compose run --rm run rake create_csv
 ```
 
 * Retrieve the output from the `/tmp` folder.
