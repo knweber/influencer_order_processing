@@ -1,41 +1,31 @@
 require 'sendgrid-ruby'
-include SendGrid
 require 'json'
 require 'base64'
+include SendGrid
 
+def create_email(users)
+  users.each do |user|
 
-my_global_table = arg1
-my_subject = "Blank Sku Report for #{my_global_table}"
-my_value = "Here is the attachment for the blank skus at #{my_global_table}"
-my_local_file = "#{my_global_table}_blank_sku.csv"
-my_report = "#{my_global_table} Blank Skus report"
-#----- New Code for sending multiple receipients
-mail = Mail.new
-mail.from = Email.new(email: ENV['OUR_EMAIL'])
-#mail.subject = my_subject
-personalization = Personalization.new
-personalization.to = Email.new(email: ENV['RECIPIENT_EMAIL'], name: ENV['RECIPIENT_NAME'])
+    user_orders = InfluencerOrder.where(:influencer_id => user.id)
+    order_num = user_orders.first.name
 
-  personalization.subject = my_subject
-  mail.personalizations = personalization
+    from = Email.new(email: ENV['OUR_EMAIL'])
+    subject = "Your order has been shipped!"
+    to = Email.new(email: user.email)
 
-  mail.contents = Content.new(type: 'text/plain', value: my_value)
+    content = Content.new(type: 'text/plain', value: "#{user.first_name}, your order is on its way! Your tracking information is below: \n
+    Carrier: #{carrier} \n
+    Tracking Number: #{tracking_num} \n
+    Order Number: #{order_num}")
 
-  #for attachments
-mystring = Base64.strict_encode64(File.open(my_local_file, "rb").read)
-
-  attachment = Attachment.new
-  attachment.content =  mystring
-  attachment.type = 'application/csv'
-  attachment.filename = my_local_file
-  attachment.disposition = 'attachment'
-  attachment.content_id = my_report
-  mail.attachments = attachment
-
-  puts mail.to_json
+    mail = Mail.new(from, subject, to, content)
+    puts mail.to_json
 
     sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'], host: 'https://api.sendgrid.com')
     response = sg.client.mail._('send').post(request_body: mail.to_json)
+
     puts response.status_code
     puts response.body
     puts response.headers
+  end
+end
