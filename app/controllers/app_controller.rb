@@ -102,7 +102,7 @@ post '/orders' do
 
     items_for_order = []
 
-    if user['three-item'].equal? false
+    if user['three_item'].equal? false
       items_for_order = order_5_items
     else
       items_for_order = order_3_items
