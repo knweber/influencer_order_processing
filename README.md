@@ -63,6 +63,9 @@ SHOPIFY_PASSWORD=
 SHOPIFY_SHOP_NAME=ellieactive
 DATABASE_URL=postgres://...
 SENDGRID_API_KEY=
+FTP_HOST=
+FTP_USER=
+FTP_PASSWORD=
 ```
 
 ## Development

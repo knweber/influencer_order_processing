@@ -1,8 +1,8 @@
-require 'sinatra'
+require_relative '../../lib/init'
 require_relative '../../lib/process_users'
 require_relative '../../lib/create_csv'
 require_relative '../../lib/models'
-require 'shopify_api'
+require_relative '../../lib/ftp'
 
 $apikey = ENV['SHOPIFY_API_KEY']
 $password = ENV['SHOPIFY_PASSWORD']
@@ -102,6 +102,7 @@ post '/orders' do
 
     items_for_order = []
 
+
     if user['three_item'].equal? false
       items_for_order = order_5_items
     else
@@ -148,8 +149,10 @@ post '/orders' do
   end
 
   puts "Total orders: #{orders.length}"
-  create_output_csv(orders)
-  erb :'orders/show'
+  csv_file = create_output_csv orders
+  FTP.async :upload_orders_csv, csv_file
+  send_file File.open csv_file, 'r'
+  erb 'orders/show'
 end
 
 get '/download' do

@@ -2,6 +2,7 @@ require 'json'
 require 'csv'
 require 'date'
 require 'securerandom'
+require 'stringio'
 
 CSV_DATE_FMT = '%m/%d/%Y %H:%M'
 SIZE_PROPERTIES = ['tops', 'sports-bra', 'leggings', 'sports-jacket']
@@ -120,6 +121,7 @@ def create_csv(orders_list)
     orders.each{|data| csv << HEADERS.map{|key| data[key]} }
   end
   puts "wrote to #{filename}"
+  csv
 end
 
 
@@ -256,8 +258,9 @@ def create_output_csv(orders)
           "", #56
           " \n" #57
         ]
+        puts 'order out'
         csv << data_out
     end
   end
-  send_file(filename, :filename => filename)
+  filename
 end
