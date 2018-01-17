@@ -150,7 +150,7 @@ post '/orders' do
 
   puts "Total orders: #{orders.length}"
   csv_file = create_output_csv orders
-  FTP.async :upload_orders_csv, csv_file
+  EllieFtp.async :upload_orders_csv, csv_file
   send_file File.open csv_file, 'r'
   erb 'orders/show'
 end

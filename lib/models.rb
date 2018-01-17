@@ -19,12 +19,31 @@ class Collect < ActiveRecord::Base
 end
 
 class Influencer < ActiveRecord::Base
-  self.table_name = 'influencers'
+  has_many :orders, class_name: 'InfluencerOrder'
+  has_many :tracking_info, class_name: 'InfluencerTracking'
+  alias :tracking_numbers :tracking_info
+  alias :tracking :tracking_info
 end
 
 class InfluencerOrder < ActiveRecord::Base
-  self.table_name = 'influencer_orders'
+  belongs_to :influencer
+  has_many :tracking, class_name: 'InfluencerTracking'
+end
 
-  def self.like_shopify
+class InfluencerTracking < ActiveRecord::Base
+  self.table_name = 'influencer_tracking'
+  has_one :influencer, through: 'order'
+  belongs_to :order, class_name: 'InfluencerTracking'
+
+  def email_data
+    {
+      influencer_id: influencer.id,
+      carrier: carrier,
+      tracking_num: tracking_number,
+    }
+  end
+
+  def email_sent?
+    !email_sent_at.nil?
   end
 end

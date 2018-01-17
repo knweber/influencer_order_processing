@@ -16,7 +16,7 @@ class SendEmail
 
   private
 
-  def send_email(user,carrier,tracking_num)
+  def send_email(user, carrier, tracking_num)
     user_orders = InfluencerOrder.where(:influencer_id => user.id)
     order_num = user_orders.first.name
 
