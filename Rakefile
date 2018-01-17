@@ -9,6 +9,17 @@ require ::File.expand_path('../config/environment', __FILE__)
 
 ActiveRecord::Base.establish_connection ENV['DATABASE_URL']
 
+def file_input(env_var = 'FILE')
+  if ENV['FILE'].nil?
+    puts 'Requires FILE for processing. Usage: rake process_tracking FILE=<filepath>'
+    exit
+  elsif ENV['FILE'] == 'STDIN'
+    STDIN
+  else
+    File.open(ENV['FILE'], 'r')
+  end
+end
+
 Rake::TestTask.new(:test) do |t|
   t.libs << "test"
   t.libs << "lib"
@@ -50,19 +61,16 @@ end
 
 desc 'create tracking from csv'
 task :process_tracking do |t|
-  if ENV['FILE'].nil?
-    puts 'Requires FILE for processing. Usage: rake process_tracking FILE=<filepath>'
-    exit
-  elsif ENV['FILE'] == 'STDIN'
-    puts 'Processing STDIN'
-    file = STDIN
-  else
-    file = File.open(ENV['FILE'], 'r')
-  end
-  OrderTracking.process_tracking_csv file
+  OrderTracking.process_tracking_csv file_input
 end
 
 desc 'echo stdin'
 task :echo do |t|
   puts STDIN.read
+end
+
+desc 'test ftp uploads'
+task :ftp_upload do |t|
+  raise ArgumentError.new 'FILE=<filename> argument requires.' unless ENV['FILE']
+  FTP.upload_orders_csv ENV['FILE']
 end
