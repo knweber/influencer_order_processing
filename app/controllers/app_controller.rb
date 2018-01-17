@@ -1,3 +1,4 @@
+require 'sinatra/basic_auth'
 require_relative '../../lib/init'
 require_relative '../../lib/process_users'
 require_relative '../../lib/create_csv'
@@ -11,6 +12,10 @@ $secret = ENV['SHOPIFY_SHARED_SECRET']
 
 ShopifyAPI::Base.site = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
 ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
+
+authorize do |username, password|
+  username == ENV['AUTH_USERNAME'] && password == ENV['AUTH_PASSWORD']
+end
 
 get '/' do
   redirect '/uploads/new'
