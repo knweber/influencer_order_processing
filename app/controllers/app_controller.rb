@@ -1,4 +1,3 @@
-require 'sinatra/basic_auth'
 enable :sessions
 require_relative '../../lib/init'
 require_relative '../../lib/process_users'
@@ -14,7 +13,6 @@ $secret = ENV['SHOPIFY_SHARED_SECRET']
 ShopifyAPI::Base.site = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.com/admin"
 ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
 
-
 get '/' do
   if session[:user_id] && session[:user_id] == ENV['AUTH_SESSION_ID']
     redirect '/admin/uploads/new'
@@ -28,7 +26,7 @@ get '/sessions/new' do
 end
 
 post '/sessions' do
-  if params[:username] == @username && params[:password] == @password
+  if params[:username] == ENV['AUTH_USERNAME'] && params[:password] == ENV['AUTH_PASSWORD']
     session[:user_id] = ENV['AUTH_SESSION_ID']
     redirect '/admin/uploads/new'
   else
@@ -37,7 +35,7 @@ post '/sessions' do
   end
 end
 
-delete '/sessions/:id' do
+delete '/sessions' do
   session[:user_id] = nil
   redirect '/'
 end

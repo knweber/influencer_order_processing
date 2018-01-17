@@ -1,7 +1,7 @@
 <h3><strong>Upload Influencers CSV</strong></h3>
 <br />
 <% if defined? errors %>
-  <div class="notification is-danger error-upload">
+  <div class="notification is-danger error-upload" style="width:200px;">
     <% errors.each do |msg| %>
       <p class="errors"> <%= msg %> </p>
     <% end %>
@@ -11,7 +11,7 @@
   </div>
 <% end %>
 
-<form id="upload-form" action="/uploads" enctype="multipart/form-data" method="post">
+<form id="upload-form" action="/admin/uploads" enctype="multipart/form-data" method="post">
   <div class = "field">
     <input name="file" type="file"/>
   </div>

@@ -27,6 +27,13 @@
 </section>
 </head>
 <body>
+  <br />
+  <% if session[:user_id] == ENV['AUTH_SESSION_ID'] %>
+  <form action="/sessions" method="post" style="float:right;">
+    <input type="hidden" name="_method" value="delete" />
+    <input type="submit" value="Log Out" style="margin-right: 50px;"/>
+  </form>
+  <% end %>
   <div class="container">
     <%= yield %>
   </div>
