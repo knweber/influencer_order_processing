@@ -4,6 +4,7 @@ require "sinatra/activerecord/rake"
 require_relative 'lib/models'
 require_relative 'lib/pull'
 require 'resque/tasks'
+require_relative 'worker/send_email'
 
 require ::File.expand_path('../config/environment', __FILE__)
 
@@ -27,6 +28,10 @@ Rake::TestTask.new(:test) do |t|
 end
 
 task :default => :test
+
+task 'resque:setup' do
+  ENV['QUEUE'] = '*'
+end
 
 desc 'refresh orders cache from shopify'
 task :pull_orders do |t|
@@ -73,4 +78,9 @@ desc 'test ftp uploads'
 task :ftp_upload do |t|
   raise ArgumentError.new 'FILE=<filename> argument requires.' unless ENV['FILE']
   FTP.upload_orders_csv ENV['FILE']
+end
+
+desc 'send email'
+task :send_email do |t|
+  Resque.enqueue(SendEmail, params)
 end
