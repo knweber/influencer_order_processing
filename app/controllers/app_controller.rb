@@ -1,3 +1,4 @@
+enable :sessions
 require_relative '../../lib/init'
 require_relative '../../lib/process_users'
 require_relative '../../lib/create_csv'
@@ -13,16 +14,39 @@ ShopifyAPI::Base.site = "https://#{$apikey}:#{$password}@#{$shopname}.myshopify.
 ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
 
 get '/' do
-  redirect '/uploads/new'
+  if session[:user_id] && session[:user_id] == ENV['AUTH_SESSION_ID']
+    redirect '/admin/uploads/new'
+  else
+    erb :'sessions/new'
+  end
 end
 
-get '/uploads/new' do
+get '/sessions/new' do
+  erb :'sessions/new'
+end
+
+post '/sessions' do
+  if params[:username] == ENV['AUTH_USERNAME'] && params[:password] == ENV['AUTH_PASSWORD']
+    session[:user_id] = ENV['AUTH_SESSION_ID']
+    redirect '/admin/uploads/new'
+  else
+    status 422
+    erb :'sessions/new', locals: { errors: ["Invalid credentials"] }
+  end
+end
+
+delete '/sessions' do
+  session[:user_id] = nil
+  redirect '/'
+end
+
+get '/admin/uploads/new' do
   puts "Destroying influencers"
   Influencer.destroy_all
   erb :'uploads/new'
 end
 
-post '/uploads' do
+post '/admin/uploads' do
   filename = '/tmp/invalid.txt'
   File.open(filename,'a+') do |file|
     file.truncate(0)
@@ -48,12 +72,12 @@ post '/uploads' do
   end
 end
 
-get '/orders/new' do
+get '/admin/orders/new' do
   InfluencerOrder.destroy_all
   erb :'orders/new'
 end
 
-post '/orders' do
+post '/admin/orders' do
   order_params = params[:order]
   placeholder_3item_id = order_params['collection_3_id']
   placeholder_5item_id = order_params['collection_5_id']
@@ -152,9 +176,10 @@ post '/orders' do
   csv_file = create_output_csv orders
   FTP.async :upload_orders_csv, csv_file
   send_file File.open csv_file, 'r'
-  erb 'orders/show'
+  erb :'orders/show'
 end
 
-get '/download' do
+
+get '/admin/download' do
   send_file '/tmp/invalid.txt'
 end
