@@ -29,14 +29,14 @@ def check_email(users)
 end
 
 def check_required_fields(user)
-  user[0] && user[1] && user[2] && user[4] && user[5] && user[6] && user[7] && user[9] && user[10] && user[11] && user[12] && user[13]
+  user[0] && user[1] && user[2] && user[4] && user[5] && user[6] && user[7] && user[9] && user[10] && user[11] && user[12] && user[13] && (user[6].length == 5 || user[6].length == 10)
 end
 
 def create_user(user)
   email = user[7]
   if !Influencer.find_by(email: email)
     if check_required_fields(user)
-      three_item_to_bool(user[13])
+      user[13] = three_item_to_bool(user[13])
       new_influencer =
       Influencer.new({
         first_name: user[0],
