@@ -170,8 +170,8 @@ post '/admin/orders' do
   end
 
   puts "Total orders: #{orders.length}"
-  #csv_file = create_output_csv orders
-  #EllieFtp.async :upload_orders_csv, csv_file
+  csv_file = create_output_csv orders
+  EllieFtp.async :upload_orders_csv, csv_file
   #send_file File.open csv_file, 'r'
   erb :'orders/show'
 end
