@@ -15,6 +15,7 @@
 /spec/examples.txt
 /test/tmp/
 /test/version_tmp/
+/redis-stable/
 
 # Used by dotenv library to load environment variables.
 # .env
