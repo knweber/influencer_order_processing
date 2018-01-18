@@ -176,7 +176,7 @@ def shipping_mapping(code)
 end
 
 def generate_order_number
-  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
+  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(11,"0")
 end
 
 def map_user_sizes(user,type)
