@@ -34,7 +34,7 @@ class EllieFtp < Net::FTP
       tracking = InfluencerTracking
         .create_with(carrier: tracking_line['carrier'], email_sent_at: nil)
         .find_or_create_by(order_id: order.id, tracking_number: tracking_line['tracking_1'])
-      Resque.enqueue(SendEmail, tracking.email_data) unless tracking.email_sent?
+      Resque.enqueue(SendEmail, order.influencer_id, tracking.email_data) unless tracking.email_sent?
     end
 
     # move the processed file to the archive
