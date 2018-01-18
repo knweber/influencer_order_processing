@@ -181,10 +181,10 @@ end
 
 def map_user_sizes(user,type)
   mapping = {
-    'Leggings' => user.bottom_size,
-    'Sports Bra' => user.bra_size,
-    'Jacket' => user.sports_jacket_size,
-    'Tops' => user.top_size,
+    'Leggings' => user.bottom_size.upcase,
+    'Sports Bra' => user.bra_size.upcase,
+    'Jacket' => user.sports_jacket_size.upcase,
+    'Tops' => user.top_size.upcase,
     'Equipment' => 'ONE SIZE',
     'Accessories' => 'ONE SIZE',
     'Wrap' => 'ONE SIZE'
