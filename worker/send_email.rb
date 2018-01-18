@@ -6,24 +6,21 @@ class SendEmail
 
   @queue = :send_emails
 
-  def self.perform(influencer_id, carrier={}, tracking_num={})
-    @influencer = Influencer.find(influencer_id)
-    sent = false
+  # task a InfluencerTracking id and sends an email with the appropriate
+  # tracking number and carrier
+  def self.perform(tracking_id)
+    tracking = InfluencerTracking.find tracking_id
+    influencer = tracking.influencer
 
     begin
-      @orders = InfluencerOrder.find_by(:influencer_id => @influencer.id )
-      carrier = args['carrier']
-      tracking_num = args['tracking_num']
-      order_num = @orders.first.name
-
       from = Email.new(email: ENV['OUR_EMAIL'], name: 'Ellie')
       subject = "Your order has been shipped!"
-      to = Email.new(email: @influencer.email)
+      to = Email.new(email: influencer.email)
 
-      content = Content.new(type: 'text/plain', value: "#{@influencer.first_name}, your order is on its way! Your tracking information is below: \n
-      Carrier: #{carrier} \n
-      Tracking Number: #{tracking_num} \n
-      Order Number: #{order_num}")
+      content = Content.new(type: 'text/plain', value: "#{influencer.first_name}, your order is on its way! Your tracking information is below: \n
+      Carrier: #{tracking.carrier} \n
+      Tracking Number: #{tracking.tracking_number} \n
+      Order Number: #{tracking.order.name}")
 
       mail = Mail.new(from, subject, to, content)
       puts mail.to_json
@@ -35,12 +32,12 @@ class SendEmail
       puts response.body
       puts response.headers
       
-      sent = true
+      tracking.email_sent_at = Time.current
+      tracking.save
       puts "** Sent! **"
     rescue Exception => e
       puts e
     end
-
 
   end
 end

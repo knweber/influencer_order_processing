@@ -32,8 +32,8 @@ end
 
 class InfluencerTracking < ActiveRecord::Base
   self.table_name = 'influencer_tracking'
+  belongs_to :order, class_name: 'InfluencerOrder'
   has_one :influencer, through: 'order'
-  belongs_to :order, class_name: 'InfluencerTracking'
 
   def email_data
     {
@@ -45,5 +45,9 @@ class InfluencerTracking < ActiveRecord::Base
 
   def email_sent?
     !email_sent_at.nil?
+  end
+
+  def send_email
+    Resque.enqueue_to(:default, 'SendEmail', id)
   end
 end

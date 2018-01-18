@@ -16,7 +16,7 @@ ShopifyAPI::Session.setup(api_key: $apikey, secret: $secret)
 
 get '/' do
   if session[:user_id] && session[:user_id] == ENV['AUTH_SESSION_ID']
-    redirect '/admin/uploads/new'
+    erb :index
   else
     erb :'sessions/new'
   end
@@ -42,8 +42,6 @@ delete '/sessions' do
 end
 
 get '/admin/uploads/new' do
-  puts "Destroying influencers"
-  Influencer.destroy_all
   erb :'uploads/new'
 end
 
@@ -74,7 +72,6 @@ post '/admin/uploads' do
 end
 
 get '/admin/orders/new' do
-  InfluencerOrder.destroy_all
   erb :'orders/new'
 end
 
@@ -127,7 +124,6 @@ post '/admin/orders' do
 
     items_for_order = []
 
-
     if user['three_item'].equal? false
       items_for_order = order_5_items
     else
@@ -174,13 +170,44 @@ post '/admin/orders' do
   end
 
   puts "Total orders: #{orders.length}"
-  csv_file = create_output_csv orders
-  EllieFtp.async :upload_orders_csv, csv_file
-  send_file File.open csv_file, 'r'
+  #csv_file = create_output_csv orders
+  #EllieFtp.async :upload_orders_csv, csv_file
+  #send_file File.open csv_file, 'r'
   erb :'orders/show'
 end
 
+get '/admin/influencers/delete' do
+  @title = 'Reset All Influencers'
+  erb :'influencers/delete'
+end
+
+delete '/admin/influencers' do
+  Influencer.destroy_all
+  redirect '/'
+end
+
+get '/admin/orders/delete' do
+  @title = 'Clear All Orders'
+  erb :'orders/delete'
+end
+
+delete '/admin/orders' do
+  InfluencerOrder.destroy_all
+  redirect '/'
+end
 
 get '/admin/download' do
   send_file '/tmp/invalid.txt'
+end
+
+
+get '/admin/ftp' do
+  erb :ftp
+end
+
+
+post '/admin/ftp' do
+  orders = InfluencerOrder.where.not(uploaded_at: nil)
+  csv_file = create_output_csv orders
+  EllieFtp.async :upload_orders_csv, csv_file
 end

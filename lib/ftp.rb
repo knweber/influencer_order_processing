@@ -28,18 +28,27 @@ class EllieFtp < Net::FTP
 
     # add all influencer lines to the database
     # add a send_email job if one has not been sent already
-    binding.pry
-    tracking_data.select{|line| /^#IN/ =~ line['fulfillment_line_item_id']}.each do tracking_line
-      order = InfluencerOrder.find_by!(name: tracking_line['fulfillment_line_item_id'])
-      tracking = InfluencerTracking
-        .create_with(carrier: tracking_line['carrier'], email_sent_at: nil)
-        .find_or_create_by(order_id: order.id, tracking_number: tracking_line['tracking_1'])
-      Resque.enqueue(SendEmail, order.influencer_id, tracking.email_data) unless tracking.email_sent?
+    tracking_data.select{|line| /^#IN/ =~ line['fulfillment_line_item_id']}.each do |tracking_line|
+      begin
+        order = InfluencerOrder.find_by!(name: tracking_line['fulfillment_line_item_id'])
+        tracking = InfluencerTracking
+          .create_with(carrier: tracking_line['carrier'], email_sent_at: nil)
+          .find_or_create_by(order_id: order.id, tracking_number: tracking_line['tracking_1'])
+        tracking.send_email unless tracking.email_sent?
+      rescue ActiveRecord::RecordNotFound => e
+        puts e
+        next
+      end
     end
 
     # move the processed file to the archive
-    pathname = Pathname.new path
-    rename(path, pathname.dirname + 'Archive' + pathname.basename)
+    begin
+      pathname = Pathname.new path
+      rename(path, pathname.dirname + 'Archive' + pathname.basename)
+    rescue Net::FTPPermError => e
+      puts 'WARNING Archive file exists already or cannot be overwritten. Removing original.'
+      ftp.delete path
+    end
   end
 
   # Retrieves a file and returns the contents as a string
