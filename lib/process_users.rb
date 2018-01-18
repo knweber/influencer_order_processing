@@ -48,10 +48,10 @@ def create_user(user)
         zip: user[6],
         email: user[7],
         phone: user[8],
-        bra_size: user[9],
-        top_size: user[10],
-        bottom_size: user[11],
-        sports_jacket_size: user[12],
+        bra_size: user[9].upcase,
+        top_size: user[10].upcase,
+        bottom_size: user[11].upcase,
+        sports_jacket_size: user[12].upcase,
         three_item: user[13]
       })
       if new_influencer.valid?
