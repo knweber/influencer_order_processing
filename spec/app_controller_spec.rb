@@ -53,7 +53,7 @@ describe 'App Controller' do
 
   end
 
-  xcontext 'post /admin/orders' do
+  context 'post /admin/orders' do
     # authorize ENV['AUTH_USERNAME'], ENV['AUTH_PASSWORD']
   end
 

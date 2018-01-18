@@ -18,19 +18,17 @@ authorize "Admin" do |username, password|
   username == ENV['AUTH_USERNAME'] && password == ENV['AUTH_PASSWORD']
 end
 
-get '/' do
-  erb :'index'
-end
-
 protect "Admin" do
+
+  get '/' do
+    erb :'index'
+  end
 
   get '/admin' do
     redirect '/admin/uploads/new'
   end
 
   get '/admin/uploads/new' do
-    puts "Destroying influencers"
-    Influencer.destroy_all
     erb :'uploads/new'
   end
 
@@ -61,7 +59,6 @@ protect "Admin" do
   end
 
   get '/admin/orders/new' do
-    InfluencerOrder.destroy_all
     erb :'orders/new'
   end
 
@@ -71,9 +68,11 @@ protect "Admin" do
     placeholder_5item_id = order_params['collection_5_id']
     orders = []
 
-    collection3 = ShopifyAPI::CustomCollection.find(placeholder_3item_id)
+    collection3 = CustomCollection.find(placeholder_3item_id)
+    puts "___"
     p collection3
-    collection5 = ShopifyAPI::CustomCollection.find(placeholder_5item_id)
+    collection5 = CustomCollection.find(placeholder_5item_id)
+    puts "*****"
     p collection5
 
     local_collects3 = Collect.where(collection_id: collection3.id)
@@ -84,11 +83,11 @@ protect "Admin" do
 
     local_collects3.each do |coll|
       line_item = Product.find(coll.product_id)
-       order_3_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+      order_3_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
     end
     local_collects5.each do |coll|
       line_item = Product.find(coll.product_id)
-       order_5_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+      order_5_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
     end
 
     Influencer.all.each do |user|
@@ -160,13 +159,47 @@ protect "Admin" do
 
     puts "Total orders: #{orders.length}"
     csv_file = create_output_csv orders
-    FTP.async :upload_orders_csv, csv_file
-    send_file File.open csv_file, 'r'
+    # TODO: orders should really not be marked uploaded until the upload succeeds.
+    # This should be retooled in the future
+    queued = EllieFtp.async :upload_orders_csv, csv_file
+    InfluencerOrder.where(name: orders.pluck['name']).update_all(uploaded_at: Time.current) if queued
+    #send_file File.open csv_file, 'r'
     erb :'orders/show'
   end
 
+  get '/admin/influencers/delete' do
+    @title = 'Reset All Influencers'
+    erb :'influencers/delete'
+  end
+
+  delete '/admin/influencers' do
+    Influencer.destroy_all
+    redirect '/'
+  end
+
+  get '/admin/orders/delete' do
+    @title = 'Clear All Orders'
+    erb :'orders/delete'
+  end
+
+  delete '/admin/orders' do
+    InfluencerOrder.destroy_all
+    redirect '/'
+  end
 
   get '/admin/download' do
     send_file '/tmp/invalid.txt'
   end
+
+  get '/admin/ftp' do
+    erb :ftp
+  end
+
+  post '/admin/ftp' do
+    orders = InfluencerOrder.where.not(uploaded_at: nil)
+    csv_file = create_output_csv orders
+    EllieFtp.async :upload_orders_csv, csv_file
+  end
 end
+
+
