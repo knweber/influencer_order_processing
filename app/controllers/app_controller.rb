@@ -161,8 +161,8 @@ protect "Admin" do
     csv_file = create_output_csv orders
     # TODO: orders should really not be marked uploaded until the upload succeeds.
     # This should be retooled in the future
-    InfluencerOrder.where(name: orders.pluck['name']).update_all(uploaded_at: Time.current)
-    queued = EllieFtp.async :upload_orders_csv, csv_file if queued
+    queued = EllieFtp.async :upload_orders_csv, csv_file
+    InfluencerOrder.where(name: orders.pluck['name']).update_all(uploaded_at: Time.current) if queued
     #send_file File.open csv_file, 'r'
     erb :'orders/show'
   end
