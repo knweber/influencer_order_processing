@@ -23,6 +23,10 @@ group :development do
   gem 'pry-rescue'
   gem 'shotgun'
   gem 'sqlite3'
+  gem 'rspec'
+  gem 'factory_bot'
+  gem 'capybara'
+  gem 'faker'
 end
 
 # Added at 2018-01-04 19:08:52 -0800 by ryan:
