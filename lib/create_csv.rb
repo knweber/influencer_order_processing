@@ -176,15 +176,15 @@ def shipping_mapping(code)
 end
 
 def generate_order_number
-  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(12,"0")
+  "#IN" + SecureRandom.random_number(36**12).to_s(36).rjust(11,"0")
 end
 
 def map_user_sizes(user,type)
   mapping = {
-    'Leggings' => user.bottom_size,
-    'Sports Bra' => user.bra_size,
-    'Jacket' => user.sports_jacket_size,
-    'Tops' => user.top_size,
+    'Leggings' => user.bottom_size.upcase,
+    'Sports Bra' => user.bra_size.upcase,
+    'Jacket' => user.sports_jacket_size.upcase,
+    'Tops' => user.top_size.upcase,
     'Equipment' => 'ONE SIZE',
     'Accessories' => 'ONE SIZE',
     'Wrap' => 'ONE SIZE'
