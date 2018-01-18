@@ -81,10 +81,10 @@ post '/admin/orders' do
   placeholder_5item_id = order_params['collection_5_id']
   orders = []
 
-  collection3 = ShopifyAPI::CustomCollection.find(placeholder_3item_id)
+  collection3 = CustomCollection.find(placeholder_3item_id)
   puts "___"
   p collection3
-  collection5 = ShopifyAPI::CustomCollection.find(placeholder_5item_id)
+  collection5 = CustomCollection.find(placeholder_5item_id)
   puts "*****"
   p collection5
 
@@ -171,6 +171,9 @@ post '/admin/orders' do
 
   puts "Total orders: #{orders.length}"
   csv_file = create_output_csv orders
+  # TODO: orders should really not be marked uploaded until the upload succeeds.
+  # This should be retooled in the future
+  InfluencerOrder.where(name: orders.pluck['name']).update_all(uploaded_at: Time.current)
   EllieFtp.async :upload_orders_csv, csv_file
   #send_file File.open csv_file, 'r'
   erb :'orders/show'

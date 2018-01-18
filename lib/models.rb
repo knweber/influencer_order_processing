@@ -28,6 +28,10 @@ end
 class InfluencerOrder < ActiveRecord::Base
   belongs_to :influencer
   has_many :tracking, class_name: 'InfluencerTracking'
+
+  def uploaded?
+    !uploaded_at.nil?
+  end
 end
 
 class InfluencerTracking < ActiveRecord::Base
