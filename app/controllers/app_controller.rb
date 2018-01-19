@@ -177,6 +177,10 @@ protect "Admin" do
     redirect '/'
   end
 
+  get '/admin/influencers/show' do
+    Influencer.to_csv
+  end
+
   get '/admin/orders/delete' do
     @title = 'Clear All Orders'
     erb :'orders/delete'
@@ -201,5 +205,3 @@ protect "Admin" do
     EllieFtp.async :upload_orders_csv, csv_file
   end
 end
-
-
