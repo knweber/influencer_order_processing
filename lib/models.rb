@@ -23,6 +23,22 @@ class Influencer < ActiveRecord::Base
   has_many :tracking_info, class_name: 'InfluencerTracking'
   alias :tracking_numbers :tracking_info
   alias :tracking :tracking_info
+
+  INFLUENCER_HEADERS = ["first_name", "last_name", "address1", "address2", "city", "state", "zip", "email", "phone", "bra_size", "top_size", "bottom_size", "sports_jacket_size", "three_item"]
+
+  def self.get_csv
+    filename = '/tmp/' + 'current_influencers.csv'
+    CSV.open(filename, 'w+', headers: INFLUENCER_HEADERS) do |csv|
+      csv << INFLUENCER_HEADERS
+      Influencer.all.each do |user|
+        csv << INFLUENCER_HEADERS.map do |key|
+          user[key]
+        end
+      end
+    end
+    filename
+  end
+
 end
 
 class InfluencerOrder < ActiveRecord::Base
