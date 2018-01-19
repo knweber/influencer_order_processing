@@ -178,7 +178,8 @@ protect "Admin" do
   end
 
   get '/admin/influencers/show' do
-    Influencer.to_csv
+    file_to_download = Influencer.get_csv
+    send_file(file_to_download, :filename => file_to_download)
   end
 
   get '/admin/orders/delete' do
