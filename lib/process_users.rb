@@ -34,7 +34,7 @@ end
 
 def create_user(user)
   email = user[7]
-  if !Influencer.find_by(email: email)
+  if !Influencer.find_or_initialize_by(email: email)
     if check_required_fields(user)
       user[13] = three_item_to_bool(user[13])
       new_influencer =
