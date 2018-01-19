@@ -34,9 +34,7 @@ protect "Admin" do
 
   post '/admin/uploads' do
     filename = '/tmp/invalid.txt'
-    File.open(filename,'a+') do |file|
-      file.truncate(0)
-    end
+    File.truncate(filename,0)
     influencer_data = params[:file][:tempfile].read
     utf_data = influencer_data.force_encoding('iso8859-1').encode('utf-8')
     influencer_rows = CSV.parse(utf_data, headers: true, header_converters: :symbol)
@@ -45,7 +43,6 @@ protect "Admin" do
       status 422
       return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."] }
     else
-      Influencer.destroy_all
       influencer_rows.each do |user|
         if !create_user(user)
           File.open(filename,'a+') do |file|
