@@ -58,6 +58,7 @@ def create_user(user)
         new_influencer.save
         new_influencer
       else
+        puts new_influencer
         return false
       end
     end
