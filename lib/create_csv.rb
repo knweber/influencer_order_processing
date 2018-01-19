@@ -108,7 +108,7 @@ def to_row_hash(order)
 end
 
 def name_csv
-  "TEST_Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
+  "Orders_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S_%L")}.csv"
 end
 
 def create_csv(orders_list)

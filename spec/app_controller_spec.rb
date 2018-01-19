@@ -38,7 +38,7 @@ describe 'App Controller' do
 
   end
 
-  xcontext 'post /admin/uploads' do
+  context 'post /admin/uploads' do
     it 'should render uploads#show' do
     end
 
