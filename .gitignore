@@ -10,6 +10,7 @@
 *.txt
 *.gem
 *.rbc
+*.rdb
 /.config
 /InstalledFiles
 /spec/examples.txt
