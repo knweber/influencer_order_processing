@@ -21,46 +21,33 @@ def file_input(env_var = 'FILE')
   end
 end
 
-def pull_products
-  pull_all(ShopifyAPI::Product, Product)
-  variants = Product.all.pluck(:variants).flatten
-  puts "adding #{variants.count} product variants"
-  variants.each do |variant|
-    ProductVariant.find_or_initialize_by(id: variant['id'])
-      .update(variant)
-  end
-end
-
 # many if not all of these tasks are called via a cron job. Make sure to update
 # the crontab when changing things in the namespace.
 namespace :pull do
 
   desc 'refresh all caches from shopify'
   task :all do |t|
-      pull_all ShopifyAPI::Order, ShopifyOrder
-      pull_all ShopifyAPI::CustomCollection, CustomCollection
-      pull_all ShopifyAPI::Collect, Collect
-      pull_products
+    ShopifyCache.pull_all
   end
 
   desc 'refresh orders cache from shopify'
-  task :pull_orders do |t|
-      pull_all ShopifyAPI::Order, ShopifyOrder
+  task :orders do |t|
+    ShopifyCache.pull_orders
   end
 
   desc 'refresh products cache from shopify'
-  task :pull_products do |t|
-    pull_products
+  task :products do |t|
+    ShopifyCache.pull_products
   end
 
   desc 'refresh custom collections cache from shopify'
-  task :pull_custom_collections do |t|
-    pull_all(ShopifyAPI::CustomCollection, CustomCollection)
+  task :custom_collections do |t|
+    ShopifyCache.pull_custom_collections
   end
 
   desc 'refresh collects cache from shopify'
-  task :pull_collects do |t|
-    pull_all(ShopifyAPI::Collect, Collect)
+  task :collects do |t|
+    ShopifyCache.pull_collects
   end
 
 end

@@ -66,96 +66,10 @@ protect "Admin" do
     order_params = params[:order]
     placeholder_3item_id = order_params['collection_3_id']
     placeholder_5item_id = order_params['collection_5_id']
-    orders = []
 
-    collection3 = CustomCollection.find(placeholder_3item_id)
-    puts "___"
-    p collection3
-    collection5 = CustomCollection.find(placeholder_5item_id)
-    puts "*****"
-    p collection5
+    # puts orders generation back HERE
 
-    local_collects3 = Collect.where(collection_id: collection3.id)
-    local_collects5 = Collect.where(collection_id: collection5.id)
-
-    order_3_items = []
-    order_5_items = []
-
-    local_collects3.each do |coll|
-      line_item = Product.find(coll.product_id)
-      order_3_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
-    end
-    local_collects5.each do |coll|
-      line_item = Product.find(coll.product_id)
-      order_5_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
-    end
-
-    Influencer.all.each do |user|
-      address = {
-        'address1' => user.address1,
-        'address2' => user.address2,
-        'city' => user.city,
-        'zip' => user.zip,
-        'province_code' => user.state,
-        'country_code' => 'US',
-        'phone' => user.phone
-      }
-
-      shipping_address = address
-      shipping_address['first_name'] = user['first_name']
-      shipping_address['last_name'] = user['last_name']
-      billing_address = address
-      billing_address['name'] = user['first_name'] + " " + user['last_name']
-
-      user_order_number = generate_order_number
-
-      items_for_order = []
-
-
-      if user['three_item'].equal? false
-        items_for_order = order_5_items
-      else
-        items_for_order = order_3_items
-      end
-
-      items_for_order.each do |prod|
-
-        new_order = InfluencerOrder.new({
-          'billing_address' => billing_address,
-          'shipping_address' => shipping_address,
-          'processed_at' => DateTime.now,
-          'influencer_id' => user.id
-        })
-
-        prod_type = prod[0]['product_type']
-        prod_title = prod[0]['title']
-
-        user_item_size = map_user_sizes(user,prod_type)
-        specific_var = ""
-
-        prod[0]['variants'].each do |var|
-          if user_item_size == var['title']
-            specific_var = var
-          end
-        end
-
-        new_order['line_item'] = {
-          'product_id' => prod[0]['options'][0]['product_id'],
-          'merchant_sku_item' => specific_var['sku'],
-          'size' => specific_var['title'],
-          'quantity_requested' => prod[0]['quantity'],
-          'item_name' => prod_title,
-          'sell_price' => specific_var['price'],
-          'product_weight' => specific_var['weight']
-        }
-
-        new_order['name'] = user_order_number
-        if new_order.valid?
-          new_order.save!
-          orders.push(new_order)
-        end
-      end
-    end
+    orders = Influencer.generate_orders(placeholder_3item_id, placeholder_5item_id)
 
     puts "Total orders: #{orders.length}"
     csv_file = create_output_csv orders
@@ -178,7 +92,7 @@ protect "Admin" do
   end
 
   get '/admin/influencers/show' do
-    file_to_download = Influencer.get_csv
+    file_to_download = Influencer.to_csv
     send_file(file_to_download, :filename => file_to_download)
   end
 
@@ -204,5 +118,27 @@ protect "Admin" do
     orders = InfluencerOrder.where.not(uploaded_at: nil)
     csv_file = create_output_csv orders
     EllieFtp.async :upload_orders_csv, csv_file
+  end
+
+  post '/admin/refresh_cache' do
+    case params['cache']
+    when 'all'
+      ShopifyCache.async :pull_all
+      erb success ? 'Success' : 'Failure'
+    when 'products'
+      ShopifyCache.async :pull_products
+      erb success ? 'Success' : 'Failure'
+    when 'orders'
+      ShopifyCache.async :pull_orders
+      erb success ? 'Success' : 'Failure'
+    when 'collects'
+      ShopifyCache.async :pull_collects
+      erb success ? 'Success' : 'Failure'
+    when 'custom_collections'
+      success = ShopifyCache.async :pull_custom_collections
+      erb success ? 'Success' : 'Failure'
+    else
+      404
+    end
   end
 end
