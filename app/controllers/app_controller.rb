@@ -58,6 +58,41 @@ protect "Admin" do
     end
   end
 
+  get '/admin/influencers/delete' do
+    @title = 'Reset All Influencers'
+    erb :'influencers/delete'
+  end
+
+  delete '/admin/influencers' do
+    Influencer.destroy_all
+    redirect '/'
+  end
+
+  get '/admin/influencers/download' do
+    file_to_download = Influencer.to_csv
+    send_file(file_to_download, :filename => file_to_download)
+  end
+
+  # orders
+
+
+  get '/admin/orders' do
+    @table = InfluencerOrder.all.group(:name).order(uploaded_at: :asc).map do |line_items|
+      OpenStruct.new(
+        ids: line_items.pluck(:id),
+        name: line_items.first.name,
+        processed_at: line_items.first.processed_at,
+        billing_address: line_items.first.billing_address,
+        shipping_address: line_items.first.shipping_address,
+        line_items: line_items.pluck(:line_item),
+        influencer: line_items.first.influencer,
+        uploaded_at: line_items.first.uploaded_at,
+        tracking: line_items.first.tracking,
+      )
+    end
+    erb :'orders/index'
+  end
+
   get '/admin/orders/new' do
     erb :'orders/new'
   end
@@ -84,20 +119,6 @@ protect "Admin" do
     erb :'orders/show'
   end
 
-  get '/admin/influencers/delete' do
-    @title = 'Reset All Influencers'
-    erb :'influencers/delete'
-  end
-
-  delete '/admin/influencers' do
-    Influencer.destroy_all
-    redirect '/'
-  end
-
-  get '/admin/influencers/show' do
-    file_to_download = Influencer.to_csv
-    send_file(file_to_download, :filename => file_to_download)
-  end
 
   get '/admin/orders/delete' do
     @title = 'Clear All Orders'
@@ -109,9 +130,7 @@ protect "Admin" do
     redirect '/'
   end
 
-  get '/admin/download' do
-    send_file '/tmp/invalid.txt'
-  end
+  # ftp
 
   get '/admin/ftp' do
     erb :ftp
