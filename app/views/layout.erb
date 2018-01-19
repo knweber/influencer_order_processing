@@ -16,20 +16,24 @@
 
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <title></title>
-  <section class="hero is-dark">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title is-bold">
-        <%= @title || 'Create Your Monthly Order' %>
-      </h1>
-    </div>
-  </div>
-</section>
 </head>
 <body>
-  <br />
-  <div class="container">
-    <%= yield %>
-  </div>
+  <section class="hero is-dark">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title is-bold">
+          <%= @title || 'Create Your Monthly Order' %>
+        </h1>
+        <% if @subtitle %>
+          <h2 class="subtitle"><%= @subtitle %></h2>
+        <% end %>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="container">
+      <%= yield %>
+    </div>
+  </section>
 </body>
 </html>

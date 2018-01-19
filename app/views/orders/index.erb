@@ -1,0 +1,28 @@
+<table class="table">
+  <thead>
+    <th>Order Number</th>
+    <th>Created</th>
+    <th>Billing Address</th>
+    <th>Shipping Address</th>
+    <th>Items</th>
+    <th>Influencer</th>
+    <th>Tracking Service</th>
+    <th>Tracking Number</th>
+    <th></th>
+  </thead>
+  <tbody>
+    <% @table.each do |line| %>
+      <tr>
+        <td><%= line.name %></td>
+        <td><%= line.processed_at %></td>
+        <td><%= line.billing_address %></td>
+        <td><%= line.shipping_address %></td>
+        <td><%= line.map(&:line_item) %></td>
+        <td><%= "#{line.influencer.first_name} #{line.influencer.last_name}" %></td>
+        <td><%= line.tracking.carrier %></td>
+        <td><%= line.tracking.tracking_number %></td>
+        <td><%=  %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

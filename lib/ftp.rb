@@ -6,7 +6,7 @@ class EllieFtp < Net::FTP
   include Async
 
   def self.upload_orders_csv(file, options = {})
-    directory = options[:directory] || 'ReceiveOrder'
+    directory = options[:directory] || '/EllieInfluencer/ReceiveOrder'
     ftp = new(ENV['FTP_HOST'], username: ENV['FTP_USER'], password: ENV['FTP_PASSWORD'], debug_mode: true)
     ftp.chdir directory
     ftp.put(File.open file)
@@ -14,7 +14,7 @@ class EllieFtp < Net::FTP
     ftp.close
   end
 
-  def self.poll_order_tracking(directory = '/SendOrder')
+  def self.poll_order_tracking(directory = '/EllieInfluencer/SendOrder')
     ftp = new(ENV['FTP_HOST'], username: ENV['FTP_USER'], password: ENV['FTP_PASSWORD'], debug_mode: true)
     ftp.chdir directory
     dir = ftp.mlsd
