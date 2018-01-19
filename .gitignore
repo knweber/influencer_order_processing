@@ -18,8 +18,6 @@
 /test/version_tmp/
 redis-stable/
 /redis-stable/
-invalid_influencers_sample_upload.csv
-valid_influencers_sample_upload.csv
 
 # Used by dotenv library to load environment variables.
 # .env
