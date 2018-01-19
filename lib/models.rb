@@ -31,48 +31,19 @@ class Influencer < ActiveRecord::Base
     orders = []
 
     collection3 = CustomCollection.find(three_item_id)
-    puts "___"
-    p collection3
     collection5 = CustomCollection.find(five_item_id)
-    puts "*****"
-    p collection5
 
-    local_collects3 = Collect.where(collection_id: collection3.id)
-    local_collects5 = Collect.where(collection_id: collection5.id)
-
-    order_3_items = []
-    order_5_items = []
-
-    local_collects3.each do |coll|
-      line_item = Product.find(coll.product_id)
-      order_3_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
-    end
-    local_collects5.each do |coll|
-      line_item = Product.find(coll.product_id)
-      order_5_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
-    end
+    order_3_items = InfluencerOrder::items_from_collection_id(collection3.id)
+    order_5_items = InfluencerOrder::items_from_collection_id(collection5.id)
 
     influencers.each do |user|
-      address = {
-        'address1' => user.address1,
-        'address2' => user.address2,
-        'city' => user.city,
-        'zip' => user.zip,
-        'province_code' => user.state,
-        'country_code' => 'US',
-        'phone' => user.phone
-      }
-
-      shipping_address = address
-      shipping_address['first_name'] = user['first_name']
-      shipping_address['last_name'] = user['last_name']
-      billing_address = address
-      billing_address['name'] = user['first_name'] + " " + user['last_name']
+      address = InfluencerOrder::address(user)
+      shipping_address = InfluencerOrder::shipping_address(user)
+      billing_address = InfluencerOrder::billing_address(user)
 
       user_order_number = generate_order_number
 
       items_for_order = []
-
 
       if user['three_item'].equal? false
         items_for_order = order_5_items
@@ -93,31 +64,17 @@ class Influencer < ActiveRecord::Base
         prod_title = prod[0]['title']
 
         user_item_size = map_user_sizes(user,prod_type)
-        specific_var = ""
-
-        prod[0]['variants'].each do |var|
-          if user_item_size == var['title']
-            specific_var = var
-          end
-        end
-
-        new_order['line_item'] = {
-          'product_id' => prod[0]['options'][0]['product_id'],
-          'merchant_sku_item' => specific_var['sku'],
-          'size' => specific_var['title'],
-          'quantity_requested' => prod[0]['quantity'],
-          'item_name' => prod_title,
-          'sell_price' => specific_var['price'],
-          'product_weight' => specific_var['weight']
-        }
-
+        specific_var = InfluencerOrder::get_corresponding_variant(user_item_size,prod)
+        new_order['line_item'] = InfluencerOrder::add_item_variant(prod,specific_var)
         new_order['name'] = user_order_number
+
         if new_order.valid?
           new_order.save!
           orders.push(new_order)
         end
       end
     end
+
     orders
   end
 
@@ -143,6 +100,59 @@ class InfluencerOrder < ActiveRecord::Base
   def uploaded?
     !uploaded_at.nil?
   end
+
+  def self.items_from_collection_id(collection_id)
+    order_items = []
+    local_collects = Collect.where(collection_id: collection_id)
+    local_collects.each do |coll|
+      line_item = Product.find(coll.product_id)
+      order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+    end
+    order_items
+  end
+
+  def self.address(user)
+    {
+      'address1' => user.address1,
+      'address2' => user.address2,
+      'city' => user.city,
+      'zip' => user.zip,
+      'province_code' => user.state,
+      'country_code' => 'US',
+      'phone' => user.phone
+    }
+  end
+
+  def self.shipping_address(user)
+    shipping_address = InfluencerOrder::address(user)
+    shipping_address['first_name'] = user['first_name']
+    shipping_address['last_name'] = user['last_name']
+    shipping_address
+  end
+
+  def self.billing_address(user)
+    billing_address = InfluencerOrder::address(user)
+    billing_address['name'] = "#{user['first_name']} #{user['last_name']}"
+    billing_address
+  end
+
+  def self.get_corresponding_variant(user_item_size,prod)
+    prod[0]['variants'].each do |var|
+      return var if user_item_size == var['title']
+    end
+  end
+
+  def self.add_item_variant(prod,var)
+    {
+      'product_id' => prod[0]['options'][0]['product_id'],
+      'merchant_sku_item' => var['sku'],
+      'size' => var['title'],
+      'quantity_requested' => prod[0]['quantity'],
+      'item_name' => prod[0]['title'],
+      'sell_price' => var['price'],
+      'product_weight' => var['weight']
+    }
+  end
 end
 
 class InfluencerTracking < ActiveRecord::Base
@@ -152,7 +162,7 @@ class InfluencerTracking < ActiveRecord::Base
 
   def email_data
     {
-      influencer_id: influencer.id,
+      influencer_id: order.influencer_id,
       carrier: carrier,
       tracking_num: tracking_number,
     }

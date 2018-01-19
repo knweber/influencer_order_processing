@@ -17,6 +17,7 @@ def check_email(users)
       File.open(filename,'a+') do |file|
         file.write("\n")
         file.write(user[0] + " " + user[1] + ", " + user[7])
+        file.write(Influencer.errors.full_messages)
       end
     end
   end
@@ -59,6 +60,8 @@ def create_user(user)
         new_influencer
       else
         puts new_influencer
+        puts "***"
+        puts Influencer.errors.full_messages
         return false
       end
     end

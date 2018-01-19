@@ -34,9 +34,7 @@ protect "Admin" do
 
   post '/admin/uploads' do
     filename = '/tmp/invalid.txt'
-    File.open(filename,'a+') do |file|
-      file.truncate(0)
-    end
+    File.truncate(filename,0)
     influencer_data = params[:file][:tempfile].read
     utf_data = influencer_data.force_encoding('iso8859-1').encode('utf-8')
     influencer_rows = CSV.parse(utf_data, headers: true, header_converters: :symbol)
@@ -45,7 +43,6 @@ protect "Admin" do
       status 422
       return erb :'uploads/new', locals: { errors: ["Oops! Some of the records you submitted are incorrect."] }
     else
-      Influencer.destroy_all
       influencer_rows.each do |user|
         if !create_user(user)
           File.open(filename,'a+') do |file|
@@ -101,15 +98,13 @@ protect "Admin" do
     order_params = params[:order]
     placeholder_3item_id = order_params['collection_3_id']
     placeholder_5item_id = order_params['collection_5_id']
-
-    # puts orders generation back HERE
-
     orders = Influencer.generate_orders(placeholder_3item_id, placeholder_5item_id)
 
     puts "Total orders: #{orders.length}"
     csv_file = create_output_csv orders
-    # TODO: orders should really not be marked uploaded until the upload succeeds.
+    # todo: orders should really not be marked uploaded until the upload succeeds.
     # This should be retooled in the future
+
     queued = EllieFtp.async :upload_orders_csv, csv_file
     if queued
       InfluencerOrder.where(name: orders.pluck('name').uniq)
@@ -119,6 +114,16 @@ protect "Admin" do
     erb :'orders/show'
   end
 
+
+  get '/admin/orders/show_unprocessed' do
+    orders = InfluencerOrder.where(:processed_at => nil)
+    file = create_output_csv(orders)
+    send_file(file, :filename => "TEST_unprocessed_#{Time.current.strftime("%Y_%m_%d_%H_%M_%S")}.csv")
+  end
+
+  # get '/admin/orders/show_processed' do
+  #
+  # end
 
   get '/admin/orders/delete' do
     @title = 'Clear All Orders'
