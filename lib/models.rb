@@ -48,6 +48,59 @@ class InfluencerOrder < ActiveRecord::Base
   def uploaded?
     !uploaded_at.nil?
   end
+
+  def items_from_collection_id(collection_id)
+    order_items = []
+    local_collect = Collect.where(collection_id: collection_id)
+    local_collect.each do |coll|
+      line_item = Product.find(coll.product_id)
+      order_items.push(map_multiple_products(MULTIPLE_PRODUCT_DATA,SIZE_SKU_DATA,line_item))
+    end
+    order_items
+  end
+
+  def address(user)
+    {
+      'address1' => user.address1,
+      'address2' => user.address2,
+      'city' => user.city,
+      'zip' => user.zip,
+      'province_code' => user.state,
+      'country_code' => 'US',
+      'phone' => user.phone
+    }
+  end
+
+  def shipping_address(user,address)
+    shipping_address = address
+    shipping_address['first_name'] = user['first_name']
+    shipping_address['last_name'] = user['last_name']
+    shipping_address
+  end
+
+  def billing_address(user,address)
+    billing_address = address
+    billing_address['name'] = user['first_name'] + " " + user['last_name']
+    billing_address
+  end
+
+  def get_corresponding_variant(user_item_size,prod)
+    prod[0]['variants'].each do |var|
+      return var if user_item_size == var['title']
+    end
+  end
+
+  def add_item_variant(prod,var)
+    {
+      'product_id' => prod[0]['options'][0]['product_id'],
+      'merchant_sku_item' => var['sku'],
+      'size' => var['title'],
+      'quantity_requested' => prod[0]['quantity'],
+      'item_name' => prod[0]['title'],
+      'sell_price' => var['price'],
+      'product_weight' => var['weight']
+    }
+  end
 end
 
 class InfluencerTracking < ActiveRecord::Base

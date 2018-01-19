@@ -66,11 +66,9 @@ protect "Admin" do
     orders = []
 
     collection3 = CustomCollection.find(placeholder_3item_id)
-    puts "___"
-    p collection3
+
     collection5 = CustomCollection.find(placeholder_5item_id)
-    puts "*****"
-    p collection5
+
 
     local_collects3 = Collect.where(collection_id: collection3.id)
     local_collects5 = Collect.where(collection_id: collection5.id)
