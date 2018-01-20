@@ -101,7 +101,7 @@ protect "Admin" do
     orders = Influencer.generate_orders(placeholder_3item_id, placeholder_5item_id)
 
     puts "Total orders: #{orders.length}"
-    csv_file = create_output_csv orders
+    csv_file = InfluencerOrder.create_csv orders
     # todo: orders should really not be marked uploaded until the upload succeeds.
     # This should be retooled in the future
 
