@@ -2,12 +2,13 @@ source "https://rubygems.org"
 
 git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
+gem 'sinatra', require: 'sinatra/base'
 gem 'shopify_api'
 gem 'recharge-api'
 gem 'activerecord'
 gem 'activesupport'
 gem 'sinatra-activerecord'
-gem 'sinatra-basic-auth'
+gem 'sinatra-basic-auth', require: 'sinatra/basic_auth'
 gem 'pg'
 gem 'rake'
 gem 'httparty'
@@ -15,6 +16,7 @@ gem 'sendgrid-ruby'
 gem 'resque'
 gem 'redis'
 gem "shopify-api-throttle", git: 'https://github.com/bradrees/shopify-api-throttle.git'
+gem 'puma'
 
 group :development do
   gem 'pry'

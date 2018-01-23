@@ -77,6 +77,7 @@ GEM
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
     public_suffix (3.0.1)
+    puma (3.11.2)
     rack (2.0.3)
     rack-protection (2.0.0)
       rack
@@ -108,7 +109,6 @@ GEM
       rspec-support (~> 3.7.0)
     rspec-support (3.7.0)
     ruby_http_client (3.3.0)
-    rubyzip (1.2.1)
     sendgrid-ruby (5.2.0)
       ruby_http_client (~> 3.2)
       sinatra (>= 1.4.7, < 3)
@@ -152,6 +152,7 @@ DEPENDENCIES
   pry
   pry-rescue
   pry-stack_explorer
+  puma
   rake
   recharge-api
   redis
@@ -161,6 +162,7 @@ DEPENDENCIES
   shopify-api-throttle!
   shopify_api
   shotgun
+  sinatra
   sinatra-activerecord
   sinatra-basic-auth
   sqlite3
