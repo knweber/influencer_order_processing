@@ -16,4 +16,5 @@ COPY Gemfile Gemfile.lock /app/
 RUN bundle install && apk del build_deps
 COPY ./ /app/
 
-CMD ["shotgun", "--host", "0.0.0.0"]
+#CMD ["shotgun", "--host", "0.0.0.0", "-r", "./config/environment.rb"]
+CMD ["rackup", "--host", "0.0.0.0"]

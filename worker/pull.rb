@@ -1,4 +1,4 @@
-require_relative 'async'
+require_relative '../lib/async'
 
 module ShopifyCache
   include Async

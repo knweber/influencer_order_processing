@@ -8,20 +8,20 @@
     <th>Influencer</th>
     <th>Tracking Service</th>
     <th>Tracking Number</th>
-    <th></th>
+    <th>Tracking Created</th>
   </thead>
   <tbody>
     <% @table.each do |line| %>
       <tr>
-        <td><%= line.name %></td>
+        <td><%= line.order_number %></td>
         <td><%= line.processed_at %></td>
-        <td><%= line.billing_address %></td>
-        <td><%= line.shipping_address %></td>
-        <td><%= line.map(&:line_item) %></td>
-        <td><%= "#{line.influencer.first_name} #{line.influencer.last_name}" %></td>
-        <td><%= line.tracking.carrier %></td>
-        <td><%= line.tracking.tracking_number %></td>
-        <td><%=  %></td>
+        <td><%= line.formatted_billing_address %></td>
+        <td><%= line.formatted_shipping_address %></td>
+        <td><%= line.formatted_line_items %></td>
+        <td><%= line.influencer_name %></td>
+        <td><%= line.carrier %></td>
+        <td><%= line.tracking_number %></td>
+        <td><%= line.tracking_created %></td>
       </tr>
     <% end %>
   </tbody>

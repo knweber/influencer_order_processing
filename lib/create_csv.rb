@@ -124,7 +124,6 @@ def create_csv(orders_list)
   file
 end
 
-
 def map_multiple_products(multiple_product_data, size_sku_data, line_item)
   multi_product_ids = multiple_product_data.pluck('product_id').map(&:to_i)
   return [line_item] unless multi_product_ids.include? line_item['product_id']
@@ -256,7 +255,7 @@ def create_output_csv(orders)
           "", #54
           "", #55
           "", #56
-          " \n" #57
+          "", #57
         ]
         puts 'order out'
         csv << data_out

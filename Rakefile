@@ -1,14 +1,11 @@
-require_relative 'lib/init'
+require_relative 'config/environment'
+
 require "rake/testtask"
 require "sinatra/activerecord/rake"
-require_relative 'lib/models'
-require_relative 'lib/pull'
 require 'resque/tasks'
+
+require_relative 'worker/pull'
 require_relative 'worker/send_email'
-
-require ::File.expand_path('../config/environment', __FILE__)
-
-ActiveRecord::Base.establish_connection ENV['DATABASE_URL']
 
 def file_input(env_var = 'FILE')
   if ENV['FILE'].nil?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180118191334) do
+ActiveRecord::Schema.define(version: 20180123211445) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,6 +31,8 @@ ActiveRecord::Schema.define(version: 20180118191334) do
     t.string "carrier"
     t.string "tracking_number"
     t.datetime "email_sent_at"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "influencers", force: :cascade do |t|
